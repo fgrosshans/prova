@@ -88,4 +88,4 @@ if __name__ == '__main__':
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
     schedulername = "FK Quadratic"
     plt.title(f"% Unserved demands,{schedulername}")
-	plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
+    plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
