@@ -11,9 +11,7 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-from functool import partial
-
-n_points = 2 # Number of points along each direction
+n_points = 3 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -22,8 +20,8 @@ if __name__ == '__main__':
     SPair_1 = ("A","C")
     SPair_2 = ("B","D")
     
-    DemRates1 = np.linspace(1,200000,n_points)
-    DemRates2 = np.linspace(1,200000,n_points)
+    DemRates1 = np.linspace(75000,200000,n_points)
+    DemRates2 = np.linspace(75000,200000,n_points)
     
     Output_RAW = [] # tuples of unservedpairs, Qstate, Dstate
 
@@ -31,7 +29,7 @@ if __name__ == '__main__':
     Q_final_RAW = []
     D_final_RAW = []    
 
-    nprocs = mp.cpu_count() #Number of workers in the pool
+    nprocs = 3 #Number of workers in the pool
     
     InputList = []
     
@@ -42,12 +40,18 @@ if __name__ == '__main__':
                         frozenset(SPair_2) : r2}
             InputList.append(SimInput)
     
-    with mp.Pool(processes=nprocs) as p:
-        Output_RAW = p.map(Sim,InputList)
-        p.close()
-        p.join()
+    with mp.Manager() as manager:
+        memo = manager.dict()
+        memoList = [memo for i in InputList]
+        with manager.Pool(processes=nprocs) as p:
+            Output_RAW = p.starmap(Sim,zip(InputList,memoList))
+            mario = dict(memoList[0])
+            p.close()
+            p.join()
     
-    # Output_RAW = list(map(Sim,InputList))
+    # memo = dict()
+    # MemoizedSim = partial(Sim,memoDict = memo)
+    # Output_RAW = list(map(MemoizedSim,InputList))
     
     t2 = time()-t1
     now = datetime.now().strftime("%H:%M:%S")

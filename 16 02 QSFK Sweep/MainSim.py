@@ -10,7 +10,7 @@ Created on Fri Dec 10 09:30:44 2021
 LossParam = .9; # This is the eta from backpressure
 Sources_rate = 200000; # Generation rate of the source, Hz.
 t_step = 1e-6; # Length of the time step, s
-time_steps = int(1e4); # Number of steps to simulate
+time_steps = int(1e3); # Number of steps to simulate PUT BACK TO 4
 memo_len=int(time_steps/5) # How many configurations should be memoized
 beta = 1      # Demand weight in the scheduling calculation     
 
@@ -21,8 +21,15 @@ import numpy as np
 from Q_class import Queue
 import Fred as fg
 
-def Sim(BatchInput):   
 
+def Sim(BatchInput,memoDict):   
+    flatInput = tuple(zip(*BatchInput.items())) # List of tuples
+    # memoDict = dict() # Uncomment to DISABLE memoization
+    for i in memoDict.keys():
+        flatMemo = i
+        if flatInput[1][0] >= flatMemo[1][0] and flatInput[1][1] >= flatMemo[1][1]:
+            output = memoDict[i]
+            return output
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
@@ -77,4 +84,8 @@ def Sim(BatchInput):
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())
     unserved = sum(D_final)/(t_step*time_steps*Tot_dem_rate) #Unserved demands at the end divided by an approximation of the total incoming demand
-    return unserved, Q_final, D_final #, violations
+    
+    to_store = tuple(zip(*BatchInput.items()))
+    if unserved >= 0.15:
+        memoDict[to_store] = (unserved, Q_final, D_final) 
+    return (unserved, Q_final, D_final) #, violations
