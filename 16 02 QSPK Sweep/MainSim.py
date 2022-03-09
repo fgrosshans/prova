@@ -112,7 +112,7 @@ def Sim(BatchInput):
         B = AllQueues.Demand(Q) 
         for nd in nodeset:
             qp_q, qp_h = qp.UpdateConstraints(Q,nd,qs,beta,Dt,dem_arr_rates,B,Ns,Qt,LossParam,L,alpha,A,Ms)
-            partialsol, memo, skipped                 = qp.QuadLyap(qp_P, qp_q, qp_G, qp_h, qp_A, qp_b,Dt,memo,memo_len,skipped,nd,ts,qs)
+            partialsol, memo                 = qp.QuadLyap(qp_P, qp_q, qp_G, qp_h, qp_A, qp_b,Dt,memo,memo_len,nd,ts,qs)
             #                        , debug_mixedsol
             #debug_memo[nd] = debug_mixedsol
             R[:len(ts),Maintimestep] = R[:len(ts),Maintimestep] + partialsol[:len(ts)]

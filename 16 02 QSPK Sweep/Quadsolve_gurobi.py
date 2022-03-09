@@ -9,7 +9,7 @@ import numpy as np
 import gurobipy as gp
 from gurobipy import GRB
 
-def QuadLyap(P, q, G, h, A, b,#Arguments for the wrapped solver
+def QuadLyap(P, q, G, h, A, b, #Arguments for the wrapped solver
              Dt,memo,memo_len,node,tran_labels,q_labels):  #Arguments to manage the memoization process
 
     cstate = str(h) + node # Keeping track of the whole system state. 
@@ -19,7 +19,6 @@ def QuadLyap(P, q, G, h, A, b,#Arguments for the wrapped solver
     if cstate in memo: # If this configuration is already known, skip optimization
         memo[cstate][1]+=1 # Increase frequency
         sol = memo[cstate][0] # Retrieve solution
-        skipped += 1
     else:
         sol = solve_qp(P, q, G, h, A, b)
 
