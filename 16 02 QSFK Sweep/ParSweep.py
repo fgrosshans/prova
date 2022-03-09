@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
 
-n_points = 129 # Number of points along each direction
+n_points = 1 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -86,6 +86,6 @@ if __name__ == '__main__':
     plt.yticks(range(len(DemRates2)),ylabels)
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
-	schedulername = "FK Quadratic"
+    schedulername = "FK Quadratic"
     plt.title(f"% Unserved demands,{schedulername}")
     plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}")
