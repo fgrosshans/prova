@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
 
-n_points = 3 # Number of points along each direction
+n_points = 1 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     Q_final_RAW = []
     D_final_RAW = []    
 
-    nprocs = 11 #Number of workers in the pool
+    nprocs = mp.cpu_count() #Number of workers in the pool
     
     InputList = []
     
