@@ -11,8 +11,9 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
+from functool import partial
 
-n_points = 129 # Number of points along each direction
+n_points = 2 # Number of points along each direction
 
 if __name__ == '__main__':
     
