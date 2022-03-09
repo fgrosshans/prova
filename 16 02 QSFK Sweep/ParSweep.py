@@ -86,6 +86,6 @@ if __name__ == '__main__':
     plt.yticks(range(len(DemRates2)),ylabels)
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
-    schedulername = "FK Quadratic" 
-	plt.title(f"% Unserved demands,{schedulername}")   
+	schedulername = "FK Quadratic"
+    plt.title(f"% Unserved demands,{schedulername}")
     plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}")
