@@ -18,7 +18,14 @@ ArrRates = {
             frozenset(('D','C')) : 200000
             }
 
-def Sim(BatchInput):
+def Sim(BatchInput,memoDict):
+    flatInput = tuple(zip(*BatchInput.items())) # List of tuples
+    # memoDict = dict() # Uncomment to DISABLE memoization
+    for i in memoDict.keys():
+        flatMemo = i
+        if flatInput[1][0] >= flatMemo[1][0] and flatInput[1][1] >= flatMemo[1][1]:
+            output = memoDict[i]
+            return output
     ######################################## INPUTS 
     
     LossParam = .9 # This  is the eta from BP paper
@@ -68,5 +75,8 @@ def Sim(BatchInput):
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())
     unserved = sum(D_final)/(t_step*time_steps*Tot_dem_rate) #Unserved demands at the end divided by an approximation of the total incoming demand
+    if unserved >= 0.15:
+        to_store = tuple(zip(*BatchInput.items()))
+        memoDict[to_store] = (unserved, Q_final, D_final) 
     return unserved, Q_final, D_final
     

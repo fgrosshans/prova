@@ -11,8 +11,7 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-
-n_points = 41 # Number of points along each direction
+n_points = 129 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -26,11 +25,11 @@ if __name__ == '__main__':
     
     Output_RAW = [] # tuples of unservedpairs, Qstate, Dstate
 
-    unserved_RAW = [] # Raw outputs for the Sim function 
+    unserved_RAW = []
     Q_final_RAW = []
     D_final_RAW = []    
 
-    nprocs = 11 #Number of workers in the pool
+    nprocs = mp.cpu_count() #Number of workers in the pool
     
     InputList = []
     
@@ -41,12 +40,17 @@ if __name__ == '__main__':
                         frozenset(SPair_2) : r2}
             InputList.append(SimInput)
     
-    with mp.Pool(processes=nprocs) as p:
-        Output_RAW = p.map(Sim,InputList)
-        p.close()
-        p.join()
+    with mp.Manager() as manager:
+        memo = manager.dict()
+        memoList = [memo for i in InputList]
+        with manager.Pool(processes=nprocs) as p:
+            Output_RAW = p.starmap(Sim,zip(InputList,memoList))
+            p.close()
+            p.join()
     
-    # Output_RAW = list(map(Sim,InputList))
+    # memo = dict()
+    # MemoizedSim = partial(Sim,memoDict = memo)
+    # Output_RAW = list(map(MemoizedSim,InputList))
     
     t2 = time()-t1
     now = datetime.now().strftime("%H:%M:%S")
@@ -56,32 +60,40 @@ if __name__ == '__main__':
     
     unserved = np.array(unserved_RAW).reshape((n_points,n_points),order="F")
     unserved = np.flipud(unserved)
-    
 
     qnumber = len(Q_final_RAW[0])   
-    blurg = (len(Q_final_RAW),1,qnumber)
-    Q_final = np.array(Q_final_RAW).reshape((n_points,n_points,qnumber),order="F") # FIGURE OUT INDEXING OF THOSE THINGS, MAYBE FORTRAN ORDER?
+    Q_final = np.array(Q_final_RAW).reshape((n_points,n_points,qnumber),order="F") 
     D_final = np.array(D_final_RAW).reshape((n_points,n_points,qnumber),order="F")  
     
     Q_final = np.flipud(Q_final)
     D_final = np.flipud(D_final)
     
+    
+    
     plt.figure(1)
-    plt.imshow(unserved*100,vmax=10,cmap='viridis')
+    plt.imshow(unserved*100,vmin=0,vmax=10)
     plt.colorbar()
-    xlabels = ['{:.2f}'.format(i) for i in DemRates1/1000]
-    ylabels = ['{:.2f}'.format(i) for i in np.flip(DemRates2)/1000]
+    
+    n_labels = 25
+    xlabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates1[0],DemRates1[-1],n_labels)/1000]
+    ylabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates2[0],DemRates2[-1],n_labels)/1000]
+    ylabels = np.flip(ylabels)
+
     try:
-        xintersect = np.nonzero(xlabels == np.atleast_1d("200.00"))[0]
-        yintersect = np.where(ylabels == np.atleast_1d("200.00"))[0]
+        xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
+        yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
         xline = [0, xintersect]
         yline = [yintersect, len(unserved)-1]
         plt.plot(xline,yline)
     except ValueError:
         print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
-    plt.xticks(range(len(DemRates1)),xlabels,rotation=70)
-    plt.yticks(range(len(DemRates2)),ylabels)
+    
+    plt.xticks(np.linspace(0,n_points-1,n_labels),xlabels,rotation=70)
+    plt.yticks(np.linspace(0,n_points-1,n_labels),ylabels)
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
-    plt.title("% Unserved demands, Greedy Scheduler")   
+    schedulername = "GS"
+    plt.title(f"% Unserved demands,{schedulername}")
     plt.show()
+    plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
+    np.savez(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,n_points=n_points,schedulername=schedulername,allow_pickle=True)

@@ -32,7 +32,15 @@ def BreakConflicts(Ms,q,R): # This function solves the inter-node conflicts.
             to_reassign-=R[j]
 
 
-def Sim(BatchInput):   
+def Sim(BatchInput,memoDict):
+    flatInput = tuple(zip(*BatchInput.items())) # List of tuples
+    # memoDict = dict() # Uncomment to DISABLE memoization
+    for i in memoDict.keys():
+        flatMemo = i
+        if flatInput[1][0] >= flatMemo[1][0] and flatInput[1][1] >= flatMemo[1][1]:
+            output = memoDict[i]
+            return output
+    
 
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
@@ -106,5 +114,8 @@ def Sim(BatchInput):
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())
     unserved = sum(D_final)/(t_step*time_steps*Tot_dem_rate) #Unserved demands at the end divided by an approximation of the total incoming demand
+    if unserved >= 0.15:
+        to_store = tuple(zip(*BatchInput.items()))
+        memoDict[to_store] = (unserved, Q_final, D_final) 
     return unserved, Q_final, D_final #, violations
 
