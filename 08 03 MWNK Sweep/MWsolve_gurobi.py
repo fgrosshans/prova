@@ -32,14 +32,10 @@ def UpdateConstraints(Q,beta,Dt,d_arr_rates,N,
                       Qt,q_loss_rate,q_arr_rate,M):
     
     ExpDt1 = Dt + np.array(d_arr_rates) # constraining term = etaQt...
-    ExpQt1 = np.array(q_loss_rate*Qt,dtype=float)
-    for i in range(len(ExpQt1)):
-        if Q[i].type == "physical":
-            ExpQt1 += q_arr_rate # ... + alpha if the queue is physical
+    ExpQt1 = np.array(q_loss_rate*Qt + q_arr_rate,dtype=float)
     
     h = np.hstack((ExpQt1,ExpDt1)) # In the calculations this looks like a vstack. However, numpy has no concept of row/column vectors 
                                    # and will try to create a matrix if asked for a vstack between two vectors
-    
     q = 2*beta*ExpDt1@N + ExpQt1@M #Linear term of the OF
     return q, h
 

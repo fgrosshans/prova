@@ -38,11 +38,9 @@ def Schedule(q, G, h, A, b,#Arguments for the wrapped solver
 def UpdateConstraints(Q,node,qlabels,beta,Dt,d_arr_rates,Bt,N,
                       Qt,q_loss_param,Lt,q_arr_rate,At,M):
     
-    ExpQt1 = q_loss_param*Qt
+    ExpQt1 = q_loss_param*Qt + q_arr_rate
     ExpDt1 = Dt + np.array(d_arr_rates)    
     for i in range(len(ExpQt1)):
-        if Q[i].type == "physical": 
-            ExpQt1[i]+=q_arr_rate # Initially, the constraints are the same as the no knowledge case.
         if node in qlabels[i]:
             ExpQt1[i] = Qt[i] + At[i] - Lt[i] # However, if the queue is connected, the upper bounds are exact. 
             ExpDt1[i] = Dt[i] + Bt[i]

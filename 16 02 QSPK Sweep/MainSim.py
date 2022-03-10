@@ -48,9 +48,14 @@ def Sim(BatchInput,memoDict):
     qnet.addpath('ABC')
     qnet.addpath('BCD')
     
+    ArrRates = {
+                frozenset(('A','B')) : 200000,
+                frozenset(('C','B')) : 200000,
+                frozenset(('D','C')) : 200000
+                }
+    
     M, qs, ts = qnet.QC.matrix(with_sinks=True)
     LossParam = .9; # This is the eta from backpressure
-    Sources_rate = 200000; # Generation rate of the source, Hz.
     t_step = 1e-5; # Length of the time step, s
     time_steps = int(1e4); # Number of steps to simulate
     memo = dict()
@@ -61,7 +66,8 @@ def Sim(BatchInput,memoDict):
     
     ############ PARAMETERS
     
-    alpha = Sources_rate*t_step
+    
+    
     
     Q = [Queue(tq[0],tq[1],tran_prob=1) for tq in qs]
     violations = np.zeros(2*len(Q))
@@ -70,11 +76,8 @@ def Sim(BatchInput,memoDict):
         nodeset = nodeset.union(set(tq))# Set of the nodes. May not be necessary now but will be useful going forward
     
     
-    for i in range(len(M)):
-        if 1 not in M[i]:
-            Q[i].SetPhysical(alpha)
     
-    
+    [q.SetPhysical(ArrRates[q.nodes]*t_step) for q in Q if q.nodes in ArrRates]
     [q.SetService(BatchInput[q.nodes],t_step) for q in Q if q.nodes in BatchInput]
     
     r_matrix = -np.identity(len(Q))
@@ -108,6 +111,7 @@ def Sim(BatchInput,memoDict):
     qp_b = np.zeros(len(qp_A))
             
     dem_arr_rates = [getattr(q,"PoissParam",0) for q in Q] # Already converted to timesteps^-1
+    alpha = [getattr(q,"GenPParam",0) for q in Q] # Already converted to timesteps^-1
     
     for Maintimestep in range(time_steps):
         # memo = dict() #Uncomment here to DISABLE memoization 

@@ -1,10 +1,15 @@
 ### INPUT
 LossParam = .9; # This is the eta from backpressure
-Sources_rate = 200000; # Generation rate of the source, Hz.
 t_step = 1e-6; # Length of the time step, s
 time_steps = int(1e4); # Number of steps to simulate
 memo_len=int(time_steps/5) # How many configurations should be memoized
 beta = 1      # Demand weight in the scheduling calculation     
+
+ArrRates = {
+            frozenset(('A','B')) : 200000,
+            frozenset(('C','B')) : 200000,
+            frozenset(('D','C')) : 200000
+            }
 
 
 import GlobalFunctions as AllQueues
@@ -57,10 +62,7 @@ def Sim(BatchInput,memoDict):
         nodeset = nodeset.union(set(tq))# Set of the nodes. May not be necessary now but will be useful going forward
     
     
-    for i in range(len(M)):
-        if 1 not in M[i]: # ASSUMPTION: physical queues do not receive swaps.
-            Q[i].SetPhysical(Sources_rate,t_step)
-    
+    [q.SetPhysical(ArrRates[q.nodes],t_step) for q in Q if q.nodes in ArrRates]
     [q.SetService(BatchInput[q.nodes],t_step) for q in Q if q.nodes in BatchInput]
     
     # Defining the building blocks of the optimization problem.
@@ -84,7 +86,7 @@ def Sim(BatchInput,memoDict):
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
     
     memo = dict() # Initializing the memory
-    alpha = Sources_rate*t_step
+    alpha = [getattr(q,"GenPParam",0) for q in Q] # Already converted to timesteps^-1
     dem_arr_rates = [getattr(q,"PoissParam",0) for q in Q] # Already converted to timesteps^-1
     
     

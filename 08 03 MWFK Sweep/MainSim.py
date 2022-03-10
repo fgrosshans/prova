@@ -8,11 +8,16 @@ Created on Fri Dec 10 09:30:44 2021
 
 ### INPUT
 LossParam = .9; # This is the eta from backpressure
-Sources_rate = 200000; # Generation rate of the source, Hz.
 t_step = 1e-6; # Length of the time step, s
 time_steps = int(1e4); # Number of steps to simulate
 memo_len=int(time_steps/5) # How many configurations should be memoized
 beta = 1      # Demand weight in the scheduling calculation     
+
+ArrRates = {
+            frozenset(('A','B')) : 200000,
+            frozenset(('C','B')) : 200000,
+            frozenset(('D','C')) : 200000
+            }
 
 
 import GlobalFunctions as AllQueues
@@ -39,10 +44,7 @@ def Sim(BatchInput,memoDict):
     ### Building the model 
     Q = [Queue(tq[0],tq[1],tran_prob=1) for tq in QLabels]
     
-    for i in range(len(M)):
-        if 1 not in M[i]: # Drop this assumption and give a vector of arrival rates.
-            Q[i].SetPhysical(Sources_rate,t_step)
-    
+    [q.SetPhysical(ArrRates[q.nodes],t_step) for q in Q if q.nodes in ArrRates]
     [q.SetService(BatchInput[q.nodes],t_step) for q in Q if q.nodes in BatchInput]
     
     # Defining the building blocks of the optimization problem.

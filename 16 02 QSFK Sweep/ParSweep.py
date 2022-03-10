@@ -48,6 +48,7 @@ if __name__ == '__main__':
             p.close()
             p.join()
     
+    # from functools import partial
     # memo = dict()
     # MemoizedSim = partial(Sim,memoDict = memo)
     # Output_RAW = list(map(MemoizedSim,InputList))
