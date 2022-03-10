@@ -36,8 +36,8 @@ def Sim(BatchInput,memoDict):
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
-    qnet.addpath('AEIC')
-    qnet.addpath('BEID')
+    qnet.addpath('ABC')
+    qnet.addpath('BCD')
     M, QLabels, R_components = qnet.QC.matrix(with_sinks=True)
     
     ### Building the model 
