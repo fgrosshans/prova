@@ -5,32 +5,33 @@ Created on Mon Jan 31 16:42:07 2022
 
 @author: paolo
 """
-
 from MainSim import Sim
 import numpy as np
 from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-
-n_points = 1 # Number of points along each direction
+n_points = 2 # Number of points along each direction
 
 if __name__ == '__main__':
+    
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Starting simulation at {now}")
     SPair_1 = ("A","C")
     SPair_2 = ("B","D")
     
-    DemRates1 = np.linspace(1,200000,n_points)
-    DemRates2 = np.linspace(1,200000,n_points)
+    DemRates1 = np.linspace(75000,200000,n_points)
+    DemRates2 = np.linspace(75000,200000,n_points)
     
-    Output_RAW = []
-    
+    Output_RAW = [] # tuples of unservedpairs, Qstate, Dstate
+
+    unserved_RAW = []
+    Q_final_RAW = []
+    D_final_RAW = []    
+
     nprocs = mp.cpu_count() #Number of workers in the pool
     
     InputList = []
-    
-    pool = mp.Pool(processes=nprocs)
     
     t1 = time()
     for r1 in DemRates1:
@@ -39,16 +40,38 @@ if __name__ == '__main__':
                         frozenset(SPair_2) : r2}
             InputList.append(SimInput)
     
-    Output_RAW = pool.map(Sim,InputList)       
+    with mp.Manager() as manager:
+        memo = manager.dict()
+        memoList = [memo for i in InputList]
+        with manager.Pool(processes=nprocs) as p:
+            Output_RAW = p.starmap(Sim,zip(InputList,memoList))
+            p.close()
+            p.join()
+    
+    # memo = dict()
+    # MemoizedSim = partial(Sim,memoDict = memo)
+    # Output_RAW = list(map(MemoizedSim,InputList))
     
     t2 = time()-t1
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Ending at {now}. Elapsed time: {np.floor(t2/60)} minutes and {(t2/60-np.floor(t2/60))*60:.2f} seconds")
-    Output = np.array(Output_RAW).reshape((n_points,n_points),order="F")
-    Output = np.flipud(Output)
+    
+    unserved_RAW, Q_final_RAW, D_final_RAW = zip(*Output_RAW)
+    
+    unserved = np.array(unserved_RAW).reshape((n_points,n_points),order="F")
+    unserved = np.flipud(unserved)
 
+    qnumber = len(Q_final_RAW[0])   
+    Q_final = np.array(Q_final_RAW).reshape((n_points,n_points,qnumber),order="F") 
+    D_final = np.array(D_final_RAW).reshape((n_points,n_points,qnumber),order="F")  
+    
+    Q_final = np.flipud(Q_final)
+    D_final = np.flipud(D_final)
+    
+    
+    
     plt.figure(1)
-    plt.imshow(Output*100,vmin=0,vmax=10)
+    plt.imshow(unserved*100,vmin=0,vmax=10)
     plt.colorbar()
     xlabels = ['{:.2f}'.format(i) for i in DemRates1/1000]
     ylabels = ['{:.2f}'.format(i) for i in np.flip(DemRates2)/1000]
@@ -57,7 +80,7 @@ if __name__ == '__main__':
         xintersect = np.nonzero(xlabels == np.atleast_1d("200.00"))[0]
         yintersect = np.where(ylabels == np.atleast_1d("200.00"))[0]
         xline = [0, xintersect]
-        yline = [yintersect, len(Output)-1]
+        yline = [yintersect, len(unserved)-1]
         plt.plot(xline,yline)
     except ValueError:
         print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
@@ -66,6 +89,7 @@ if __name__ == '__main__':
     plt.yticks(range(len(DemRates2)),ylabels)
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
-    schedulername = "FK Quadratic"
+    schedulername = "PK Quadratic"
     plt.title(f"% Unserved demands,{schedulername}")
     plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
+    np.savez(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pairs=list(SimInput.keys(),threads=nprocs))

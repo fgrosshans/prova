@@ -11,7 +11,7 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-n_points = 3 # Number of points along each direction
+n_points = 2 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     Q_final_RAW = []
     D_final_RAW = []    
 
-    nprocs = 3 #Number of workers in the pool
+    nprocs = mp.cpu_count() #Number of workers in the pool
     
     InputList = []
     
@@ -45,7 +45,6 @@ if __name__ == '__main__':
         memoList = [memo for i in InputList]
         with manager.Pool(processes=nprocs) as p:
             Output_RAW = p.starmap(Sim,zip(InputList,memoList))
-            mario = dict(memoList[0])
             p.close()
             p.join()
     
@@ -63,8 +62,7 @@ if __name__ == '__main__':
     unserved = np.flipud(unserved)
 
     qnumber = len(Q_final_RAW[0])   
-    blurg = (len(Q_final_RAW),1,qnumber)
-    Q_final = np.array(Q_final_RAW).reshape((n_points,n_points,qnumber),order="F") # FIGURE OUT INDEXING OF THOSE THINGS, MAYBE FORTRAN ORDER?
+    Q_final = np.array(Q_final_RAW).reshape((n_points,n_points,qnumber),order="F") 
     D_final = np.array(D_final_RAW).reshape((n_points,n_points,qnumber),order="F")  
     
     Q_final = np.flipud(Q_final)
@@ -94,3 +92,4 @@ if __name__ == '__main__':
     schedulername = "FK Quadratic"
     plt.title(f"% Unserved demands,{schedulername}")
     plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
+    np.savez(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,allow_pickle=True)

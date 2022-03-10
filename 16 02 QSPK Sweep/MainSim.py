@@ -34,7 +34,14 @@ def BreakConflicts(Ms,q,R):
                 
                 
         
-def Sim(BatchInput):   
+def Sim(BatchInput,memoDict):   
+    flatInput = tuple(zip(*BatchInput.items())) # List of tuples
+    # memoDict = dict() # Uncomment to DISABLE memoization
+    for i in memoDict.keys():
+        flatMemo = i
+        if flatInput[1][0] >= flatMemo[1][0] and flatInput[1][1] >= flatMemo[1][1]:
+            output = memoDict[i]
+            return output
     ############ INPUT
     
     qnet = fg.eswapnet()
@@ -48,8 +55,7 @@ def Sim(BatchInput):
     time_steps = int(1e4); # Number of steps to simulate
     memo = dict()
     memo_len=int(time_steps/10) # How many configurations should be memoized
-    
-    skipped = 0
+
     
     beta = 1    # Demand weight in the scheduling calculation     
     
@@ -126,15 +132,13 @@ def Sim(BatchInput):
         actualQ =Qt+A-L
         BreakConflicts(Ms, actualQ,R[:,Maintimestep])
         violations += AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B)
-        debug_violation = AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B)
-        #if debug_violation:
-            #breakpoint()
-            #pass
         AllQueues.Evolve(Q,Ms,R[:,Maintimestep])
     
-    
-    print(f"There were {violations} steps in which the scheduler asked for something impossible, {violations/time_steps*100}% of the times")
     D_final = [q.demands for q in Q]
+    Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())
     unserved = sum(D_final)/(t_step*time_steps*Tot_dem_rate) #Unserved demands at the end divided by an approximation of the total incoming demand
-    return unserved #, violations
+    if unserved >= 0.15:
+        to_store = tuple(zip(*BatchInput.items()))
+        memoDict[to_store] = (unserved, Q_final, D_final) 
+    return unserved, Q_final, D_final
