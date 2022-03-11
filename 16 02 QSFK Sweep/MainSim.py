@@ -14,9 +14,9 @@ memo_len=int(time_steps/5) # How many configurations should be memoized
 beta = 1      # Demand weight in the scheduling calculation     
 
 ArrRates = {
-            frozenset(('A','B')) : 2000000,
-            frozenset(('C','B')) : 2000000,
-            frozenset(('D','C')) : 2000000
+            frozenset(('A','B')) : 200000,
+            frozenset(('C','B')) : 200000,
+            frozenset(('D','C')) : 200000
             }
 
 
