@@ -14,9 +14,9 @@ memo_len=int(time_steps/5) # How many configurations should be memoized
 beta = 1      # Demand weight in the scheduling calculation     
 
 ArrRates = {
-            frozenset(('A','B')) : 200000,
-            frozenset(('C','B')) : 200000,
-            frozenset(('D','C')) : 200000
+            frozenset(('A','B')) : 2000000,
+            frozenset(('C','B')) : 2000000,
+            frozenset(('D','C')) : 2000000
             }
 
 
@@ -75,8 +75,6 @@ def Sim(BatchInput,memoDict):
         A = AllQueues.Arrivals(Q)
         L = AllQueues.Losses(Q,Qt,LossParam)
         Bt = AllQueues.Demand(Q)
-        if Maintimestep % 20 == 0:
-            breakpoint()
         qp_q, qp_h = qp.UpdateConstraints(beta,Dt,Bt,Ns,Qt,L,A,Ms)
         R[:,Maintimestep], memo = qp.QuadLyap(qp_P, qp_q, qp_G, qp_h, qp_A, qp_b,Dt ,memo,memo_len)
         AllQueues.Evolve(Q,Ms,R[:,Maintimestep]) # Note to me: this method DOES evolve demands, it just does it directly on the q objects

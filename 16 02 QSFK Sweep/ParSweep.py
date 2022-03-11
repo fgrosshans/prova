@@ -11,7 +11,7 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-n_points = 129 # Number of points along each direction
+n_points = 65 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -20,8 +20,8 @@ if __name__ == '__main__':
     SPair_1 = ("A","C")
     SPair_2 = ("B","D")
     
-    DemRates1 = np.linspace(1,200000,n_points)
-    DemRates2 = np.linspace(1,200000,n_points)
+    DemRates1 = np.linspace(1,2000000,n_points)
+    DemRates2 = np.linspace(1,2000000,n_points)
     
     Output_RAW = [] # tuples of unservedpairs, Qstate, Dstate
 
