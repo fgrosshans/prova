@@ -13,20 +13,19 @@ from Q_class import Queue
 import Fred as fg
 
 
-rng = np.random.default_rng()
+rngConflict = np.random.default_rng()
 
 def BreakConflicts(G,q,R):
     scheduled = -G@R
     conflictIndices = np.flatnonzero(scheduled > q)
     for i in conflictIndices: # Which constraints are broken  
-        breakpoint()
         to_reassign = q[i] + np.dot(G[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
         concurrents = np.flatnonzero(G[i] == -1) #Those are the indices of the -1 terms, the ones generating conflict
         demandIndex = concurrents[-1] 
         R[demandIndex] = min(R[demandIndex],to_reassign)
         to_reassign-=R[demandIndex]
         concurrents = concurrents[:-1]
-        rng.shuffle(concurrents)
+        rngConflict.shuffle(concurrents)
         for j in concurrents:
             if to_reassign < 0:
                 to_reassign = 0
@@ -58,7 +57,7 @@ def Sim(BatchInput,memoDict):
     
     M, qs, ts = qnet.QC.matrix(with_sinks=True)
     LossParam = .9; # This is the eta from backpressure
-    t_step = 1e-5; # Length of the time step, s
+    t_step = 1e-6; # Length of the time step, s
     time_steps = int(1e4); # Number of steps to simulate
     memo = dict()
     memo_len=int(time_steps/10) # How many configurations should be memoized
@@ -116,12 +115,13 @@ def Sim(BatchInput,memoDict):
     alpha = [getattr(q,"GenPParam",0) for q in Q] # Already converted to timesteps^-1
     
     for Maintimestep in range(time_steps):
-        # memo = dict() #Uncomment here to DISABLE memoization 
         Qt = np.array([q.Qdpairs for q in Q])
         Dt = np.array([q.demands for q in Q]) 
         A = AllQueues.Arrivals(Q)
         L = AllQueues.Losses(Q,Qt,LossParam)
         B = AllQueues.Demand(Q) 
+        if Maintimestep % 20 == 0:
+            breakpoint()
         for nd in nodeset:
             qp_q, qp_h = qp.UpdateConstraints(Q,nd,qs,beta,Dt,dem_arr_rates,B,Ns,Qt,LossParam,L,alpha,A,Ms)
             partialsol, memo                 = qp.QuadLyap(qp_P, qp_q, qp_G, qp_h, qp_A, qp_b,Dt,memo,memo_len,nd,ts,qs)
@@ -135,7 +135,7 @@ def Sim(BatchInput,memoDict):
                             R[len(ts) + i,Maintimestep] += partialsol[len(ts) + i]
                     elif flag == 2: # This node requested consumption, but the other node had already requested it -> break the tie
                         R[len(ts) + i,Maintimestep] = min(R[len(ts) + i,Maintimestep],partialsol[len(ts) + i]) 
-        actual_qp_h = Qt+A-L
+        actual_qp_h = np.hstack((Qt+A-L,Dt+B))
         R[:,Maintimestep] = BreakConflicts(qp_G, actual_qp_h,R[:,Maintimestep])
         violations += AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B)
         AllQueues.Evolve(Q,Ms,R[:,Maintimestep])

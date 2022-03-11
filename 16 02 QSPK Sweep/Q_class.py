@@ -7,8 +7,7 @@ Created on Tue Nov  9 16:33:56 2021
 
 """
 
-from random import random
-from numpy.random import poisson
+import numpy as np
 
 class Queue:
 
@@ -20,9 +19,7 @@ class Queue:
         self.Qdpairs = 0; # Queued pairs, initialized to zero.
         self.T_prob = tran_prob # Transmission probability
         self.demands = 0; # Requests, initialized to zero.
-        self.scheduledin = 0
-        self.scheduledout = 0
-        self.stale = True
+        self.rng = np.random.default_rng(seed=4529)
         
         
     def SetPhysical(self,alpha):
@@ -39,12 +36,13 @@ class Queue:
         return self
     
     def Generate(self):
+        rng = self.rng
         if (self.type == "physical"): # Only physical queues generate, but implementing this check here allows to call...
                                       # ... the Generate method for all queues indistinctly.
-            to_generate = poisson(self.GenPParam)
+            to_generate = rng.poisson(self.GenPParam)
             generated = 0;
             for i in range(to_generate):
-                rd = random() 
+                rd = rng.random() 
                 if rd <= self.T_prob:
                     self.Qdpairs += 1
                     generated += 1
@@ -53,18 +51,20 @@ class Queue:
             return 0
                     
     def Loss(self,LossParam): 
+        rng = self.rng
         to_check = int(self.Qdpairs)
         lost = 0 
         for i in range(to_check):
-            if random() <= (1-LossParam):
+            if rng.random() <= (1-LossParam):
                 self.Qdpairs -=1
                 lost +=1
         return lost
 
     def Demand(self): # A next step would be to change the shape of demand distribution
+        rng = self.rng    
         D = 0;
         if self.serv == "service":
-            D = poisson(self.PoissParam)
+            D = rng.poisson(self.PoissParam)
             self.demands += D
         return D
     
