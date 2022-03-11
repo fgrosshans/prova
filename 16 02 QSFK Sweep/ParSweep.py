@@ -11,7 +11,7 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-n_points = 129 # Number of points along each direction
+n_points = 1 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     for r1 in DemRates1:
         for r2 in DemRates2:
             SimInput = {frozenset(SPair_1) : r1,
-                        frozenset(SPair_2) : r2}
+                        frozenset(SPair_2) : r2} # Remove hardcoding of two pairsand try to see if having only one pair changes anything.
             InputList.append(SimInput)
     
     with mp.Manager() as manager:
