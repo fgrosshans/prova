@@ -37,52 +37,12 @@ def Evolve(Q,M,R):
         Q[i].Qdpairs = Q_t1[i]
         Q[i].demands = max(D_t1[i],0)
 
-#This happened:
 
-"""
-[A[B]C B[C]D]['BC', 'AB', 'CD', 'AC', 'BD']
-
-D_t
-[0. 0. 0. 5. 0.]
-
-D_t1
-[0. 0. 0. 3. 0.]
-
-R
-[1. 3. 0. 0. 0. 2. 0.]
-
-Q_t
-[6. 1. 4. 0. 0.] Notice how queue 3 didn't have enough pairs to serve 2 demands, even after swapping
-
-Q_t1
-[2. 0. 1. 0. 3.]
-
-Q_t+M@R
-[ 2.  0.  1. -1.  3.] The queue went negative and was corrected. However, the demand counter was lowered by two. This is a problem
-
-R
-[1. 3. 0. 0. 0. 2. 0.]
-
-Q_t
-[6. 1. 4. 0. 0.]
-
-Q_t1-Q_t
-[-4. -1. -3.  0.  3.]
-
-D_t1-D_t
-[ 0.  0.  0. -2.  0.]
-
-M@R
-[-4. -1. -3. -1.  3.]
-The problem could be corrected by changing R into the actual scheduling vector.
-This should NOT be necessary, since all decision are based on perfect local information.
-"""
 
 
 def CheckActualFeasibility(M,N,R,Q,D,L,A,B):
     G = np.vstack((M,N))
-    scheduled = -G@R 
-    error = False
+    scheduled = -G@R
     actualQ = Q - L + A
     actualD = D + B
     actual_qp_q = np.hstack((actualQ,actualD))

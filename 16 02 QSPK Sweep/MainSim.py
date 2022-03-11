@@ -15,12 +15,13 @@ import Fred as fg
 
 rng = np.random.default_rng()
 
-def BreakConflicts(Ms,q,R):
-    scheduled = -Ms@R
+def BreakConflicts(G,q,R):
+    scheduled = -G@R
     conflictIndices = np.flatnonzero(scheduled > q)
     for i in conflictIndices: # Which constraints are broken  
-        to_reassign = q[i] + np.dot(Ms[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
-        concurrents = np.flatnonzero(Ms[i] == -1) #Those are the indices of the -1 terms, the ones generating conflict
+        breakpoint()
+        to_reassign = q[i] + np.dot(G[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
+        concurrents = np.flatnonzero(G[i] == -1) #Those are the indices of the -1 terms, the ones generating conflict
         demandIndex = concurrents[-1] 
         R[demandIndex] = min(R[demandIndex],to_reassign)
         to_reassign-=R[demandIndex]
@@ -31,7 +32,8 @@ def BreakConflicts(Ms,q,R):
                 to_reassign = 0
             R[j] = min(R[j],to_reassign)
             to_reassign-=R[j]
-                
+    return R
+            
                 
         
 def Sim(BatchInput,memoDict):   
@@ -133,8 +135,8 @@ def Sim(BatchInput,memoDict):
                             R[len(ts) + i,Maintimestep] += partialsol[len(ts) + i]
                     elif flag == 2: # This node requested consumption, but the other node had already requested it -> break the tie
                         R[len(ts) + i,Maintimestep] = min(R[len(ts) + i,Maintimestep],partialsol[len(ts) + i]) 
-        actualQ =Qt+A-L
-        BreakConflicts(Ms, actualQ,R[:,Maintimestep])
+        actual_qp_h = Qt+A-L
+        R[:,Maintimestep] = BreakConflicts(qp_G, actual_qp_h,R[:,Maintimestep])
         violations += AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B)
         AllQueues.Evolve(Q,Ms,R[:,Maintimestep])
     
