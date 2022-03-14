@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
 
-n_points = 65 # Number of points along each direction
+n_points = 3 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -41,19 +41,19 @@ if __name__ == '__main__':
                         frozenset(SPair_2) : r2} # Remove hardcoding of two pairsand try to see if having only one pair changes anything.
             InputList.append(SimInput)
     
-    with mp.Manager() as manager:
-        memo = manager.dict()
-        memoList = [memo for i in InputList]
-        with manager.Pool(processes=nprocs) as p:
-            Output_RAW = p.starmap(Sim,zip(InputList,memoList))
-            p.close()
-            p.join()
+    #with mp.Manager() as manager:
+    #    memo = manager.dict()
+    #    memoList = [memo for i in InputList]
+    #    with manager.Pool(processes=nprocs) as p:
+    #        Output_RAW = p.starmap(Sim,zip(InputList,memoList))
+    #        p.close()
+    #        p.join()
     
-    # from functools import partial
-    # memo = dict()
-    # MemoizedSim = partial(Sim,memoDict = memo)
-    # Output_RAW = list(map(MemoizedSim,InputList))
-    
+    from functools import partial
+    memo = dict()
+    MemoizedSim = partial(Sim,memoDict = memo)
+    Output_RAW = list(map(MemoizedSim,InputList))
+   
     t2 = time()-t1
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Ending at {now}. Elapsed time: {np.floor(t2/60)} minutes and {(t2/60-np.floor(t2/60))*60:.2f} seconds")
