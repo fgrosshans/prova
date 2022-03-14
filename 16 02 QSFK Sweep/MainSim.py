@@ -7,7 +7,7 @@ Created on Fri Dec 10 09:30:44 2021
 """
 
 ### INPUT
-LossParam = .9; # This is the eta from backpressure
+LossParam = .1; # This is the eta from backpressure
 t_step = 1e-6; # Length of the time step, s
 time_steps = int(1e4); # Number of steps to simulate PUT BACK TO 4
 memo_len=int(time_steps/5) # How many configurations should be memoized

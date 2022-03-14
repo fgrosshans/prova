@@ -41,6 +41,7 @@ class Queue:
                                       # ... the Generate method for all queues indistinctly.
             to_generate = self.rng.poisson(self.GenPParam)
             generated = sum(rng.random(size=to_generate) <= self.T_prob)
+            self.Qdpairs += generated
             return generated
         else:
             return 0
