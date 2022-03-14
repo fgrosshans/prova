@@ -14,8 +14,9 @@ Methods:
     -Loss
 """
 
-from random import random
-from numpy.random import poisson
+import numpy as np
+from KnockOffRand import KnockoffNpRandom
+
 
 class Queue:
 
@@ -30,8 +31,9 @@ class Queue:
         self.scheduledin = 0
         self.scheduledout = 0
         self.demands = 0
-        
         self.Lossprob = 2*(1-efficiency) - (1-efficiency)**2 # Here, you excluded the case in which both memories failed. Why?
+        #self.rng = np.random.default_rng(seed=4529)
+        self.rng = KnockoffNpRandom()
         
         
     def SetPhysical(self,arr_rate_s,tstep):
@@ -40,14 +42,11 @@ class Queue:
         self.GenPParam = arr_rate_steps # Parameter for the Poisson Distribution of photon arrivals
         
     def Loss(self,LossParam):
+        rng=self.rng
         to_check = self.Qdpairs
-        lost = 0
-        for i in range(to_check):
-            if random() <= (1-LossParam):
-                self.Qdpairs -=1
-                lost +=1
+        lost = sum(rng.random(size=to_check) <= (1-LossParam))
         return lost
-      
+
     
     def SetVirtual(self):
         self.type = "virtual"
@@ -59,14 +58,15 @@ class Queue:
         return self   
     
     def Generate(self):
+        rng = self.rng
         if (self.type == "physical"): # Only physical queues generate, but implementing this check here allows to call...
-                        # ... the Generate method for all queues indistinctly.
-            to_generate = poisson(self.GenPParam)
-            for i in range(to_generate):
-                rd = random() 
-                if rd < self.T_prob:
-                    self.Qdpairs += 1
-    
+                                      # ... the Generate method for all queues indistinctly.
+            to_generate = self.rng.poisson(self.GenPParam)
+            generated = sum(rng.random(size=to_generate) <= self.T_prob)
+            return generated
+        else:
+            return 0
+ 
     def ScheduleIN(self):
         self.scheduledin += self.ReadOut() # The pairs are actually scheduled in if the BSM at the middle node has had success, i.e. neither memory has failed
 
@@ -91,12 +91,13 @@ class Queue:
     def Demand(self): 
         D = 0;
         if self.serv == "service":
-            D = poisson(self.PoissParam)
+            D = self.rng.poisson(self.PoissParam)
             self.demands += D
         return D
-   
+    
     def ReadOut(self): # Memories are always read by pairs in this implementation. This function checks whether one of the two memories have failed.
-        rd = random()
+        rng = self.rng    
+        rd = rng.random()
         if rd < self.Lossprob:
             return 0
         else:

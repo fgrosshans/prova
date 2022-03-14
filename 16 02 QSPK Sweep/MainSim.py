@@ -78,7 +78,7 @@ def Sim(BatchInput,memoDict):
     
     
     
-    [q.SetPhysical(ArrRates[q.nodes]*t_step) for q in Q if q.nodes in ArrRates]
+    [q.SetPhysical(ArrRates[q.nodes],t_step) for q in Q if q.nodes in ArrRates]
     [q.SetService(BatchInput[q.nodes],t_step) for q in Q if q.nodes in BatchInput]
     
     r_matrix = -np.identity(len(Q))
@@ -120,8 +120,6 @@ def Sim(BatchInput,memoDict):
         A = AllQueues.Arrivals(Q)
         L = AllQueues.Losses(Q,Qt,LossParam)
         B = AllQueues.Demand(Q) 
-        if Maintimestep % 20 == 0:
-            breakpoint()
         for nd in nodeset:
             qp_q, qp_h = qp.UpdateConstraints(Q,nd,qs,beta,Dt,dem_arr_rates,B,Ns,Qt,LossParam,L,alpha,A,Ms)
             partialsol, memo                 = qp.QuadLyap(qp_P, qp_q, qp_G, qp_h, qp_A, qp_b,Dt,memo,memo_len,nd,ts,qs)
