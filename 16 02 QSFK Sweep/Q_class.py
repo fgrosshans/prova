@@ -50,6 +50,7 @@ class Queue:
         rng=self.rng
         to_check = self.Qdpairs
         lost = sum(rng.random(size=to_check) <= (1-LossParam))
+        self.Qdpairs -= lost
         return lost
 
     def Demand(self): 

@@ -18,7 +18,7 @@ class Queue:
         self.T_prob = tran_prob # Transmission probability
         self.demands = 0; # Requests, initialized to zero
         #self.rng = np.random.default_rng(seed=4529)
-        self.rng = KnockoffNpRandom()
+        self.rng = KnockoffNpRandom(seed = 9198)
         
     def SetPhysical(self,arr_rate_s,t_step):
         self.type = "physical"
@@ -41,14 +41,16 @@ class Queue:
                                       # ... the Generate method for all queues indistinctly.
             to_generate = self.rng.poisson(self.GenPParam)
             generated = sum(rng.random(size=to_generate) <= self.T_prob)
+            self.Qdpairs += generated
             return generated
         else:
             return 0
 
     def Loss(self,LossParam):
         rng=self.rng
-        to_check = int(self.Qdpairs)
+        to_check = self.Qdpairs
         lost = sum(rng.random(size=to_check) <= (1-LossParam))
+        self.Qdpairs -= lost
         return lost
 
     def Demand(self): 
