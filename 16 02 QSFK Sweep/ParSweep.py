@@ -12,14 +12,14 @@ import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
 
-n_points = 129 # Number of points along each direction
+n_points = 65 # Number of points along each direction
 
 if __name__ == '__main__':
     
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Starting simulation at {now}")
-    SPair_1 = ("A","C")
-    SPair_2 = ("B","D")
+    SPair_1 = ("A","D")
+    SPair_2 = ("E","F")
     
     DemRates1 = np.linspace(1,200000,n_points)
     DemRates2 = np.linspace(1,200000,n_points)
