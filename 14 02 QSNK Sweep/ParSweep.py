@@ -11,7 +11,7 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-n_points = 33 # Number of points along each direction
+n_points = 129 # Number of points along each direction
 
 if __name__ == '__main__':
     
