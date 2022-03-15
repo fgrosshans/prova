@@ -17,8 +17,8 @@ class Queue:
         self.Qdpairs = 0; # Queued pairs, initialized to zero.
         self.T_prob = tran_prob # Transmission probability
         self.demands = 0; # Requests, initialized to zero
-        #self.rng = np.random.default_rng(seed=4529)
-        self.rng = KnockoffNpRandom(seed = 99999999999999)
+        #self.rng = np.random.default_rng()
+        self.rng = KnockoffNpRandom()
         
     def SetPhysical(self,arr_rate_s,t_step):
         self.type = "physical"
