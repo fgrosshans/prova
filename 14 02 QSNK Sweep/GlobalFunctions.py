@@ -34,11 +34,10 @@ def Evolve(Q,Ms,Ns,R,Qt,L,A,Dt,B):
     actual_qp_q = np.hstack((actualQ,actualD))
     G = np.vstack((Ms,Ns))
     scheduled = -G@R 
-    
     conflictIndices = np.flatnonzero(scheduled > actual_qp_q) # Find which constraints are broken  
-    doubleQ = np.hstack((actualQ,actualQ)) # I'm checking that nothing violates Q constraints: This vector allows to check both Q and D lines against Q constraints
     for i in conflictIndices: 
-        to_reassign = doubleQ[i] + np.dot(G[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
+        breakpoint() #TODO
+        to_reassign = actual_qp_q[i] + np.dot(G[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
         concurrents = np.flatnonzero(G[i] == -1) # Those are the indices of the -1 terms, the ones generating conflict
         demandIndex = concurrents[-1] # Demand is the priority in breaking these conflicts
         R[demandIndex] = min(R[demandIndex],to_reassign)
