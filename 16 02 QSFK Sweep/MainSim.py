@@ -17,8 +17,9 @@ ArrRates = {
             frozenset(('A','B')) : 200000,
             frozenset(('C','B')) : 200000,
             frozenset(('D','C')) : 200000,
-            frozenset(('E','B')) : 200000,
-            frozenset(('C','F')) : 200000 #Last two are additional for the double Y
+            frozenset(('D','A')) : 200000 # This is for the square
+            #frozenset(('E','B')) : 200000,
+            #frozenset(('C','F')) : 200000 #Last two are additional for the double Y
             }
 
 
@@ -40,8 +41,12 @@ def Sim(BatchInput,memoDict):
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
-    qnet.addpath('ABCD')
-    qnet.addpath('EBCF')
+    qnet.addpath('ABC')
+    qnet.addpath('ADC')
+    qnet.addpath('BCD')
+    qnet.addpath('BAD')
+
+#    qnet.addpath('EBCF')
     M, QLabels, R_components = qnet.QC.matrix(with_sinks=True)
     
     ### Building the model 
