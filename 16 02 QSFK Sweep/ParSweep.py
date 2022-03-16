@@ -21,8 +21,8 @@ if __name__ == '__main__':
     SPair_1 = ("A","C")
     SPair_2 = ("B","D")
     
-    DemRates1 = np.linspace(1,200000,n_points)
-    DemRates2 = np.linspace(1,200000,n_points)
+    DemRates1 = np.linspace(1,400000,n_points)
+    DemRates2 = np.linspace(1,400000,n_points)
     
     Output_RAW = [] # tuples of unservedpairs, Qstate, Dstate
 
