@@ -10,7 +10,7 @@ Created on Fri Dec 10 09:30:44 2021
 LossParam = .9; # This is the eta from backpressure
 t_step = 1e-6; # Length of the time step, s
 time_steps = int(1e4); # Number of steps to simulate
-memo_len=int(time_steps/5) # How many configurations should be memoized
+memo_len=int(time_steps/3) # How many configurations should be memoized
 beta = 1      # Demand weight in the scheduling calculation     
 
 ArrRates = {
