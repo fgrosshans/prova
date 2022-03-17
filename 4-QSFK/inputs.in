@@ -3,7 +3,7 @@ LossParam = .9; # This is the eta from backpressure
 t_step = 1e-6; # Length of the time step, s
 time_steps = int(1e4); # Number of steps to simulate per pixel
 memo_len=int(time_steps/3) # How many configurations should be memoized - this refers to the memoization inside the pixels
-beta = 1      # Demand weight in the scheduling calculation     
+beta = 1    # Demand weight in the scheduling calculation     
 
 ArrRates = {
             frozenset(('A','B')) : 200000,  # Physical pairs and their arrival rates, Hz
@@ -15,7 +15,7 @@ topologyname = "Chain" # Just for the plot, type whatever you want here
 
 routes = ['ABC','BCD'] # Routes to serve the service pairs. Notice that this is separate from the SPair variables, so that several routes may be specified for a single pair.
 
-n_points = 3 # Number of pixels for the stability plot
+n_points = 1 # Number of pixels for the stability plot
 
 SPair_1 = ("A","C") #Service pairs
 SPair_2 = ("B","D")

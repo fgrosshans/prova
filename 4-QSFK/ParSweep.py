@@ -15,10 +15,10 @@ from datetime import datetime
 with open("inputs.in") as f: # Importing variables from the inputs file
     exec(f.read())
 
-print(f"###############Recap:###############")
+print("###############Recap:###############")
 print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
-print(f"- Losses (1-eta): {1 - Lossparam}, Beta: {beta}")
-print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,"
+print(f"- Losses (1-eta): {1 - LossParam:.2f}, Beta: {beta}")
+print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,")
 print(f"                 - {SPair_2}, {DemRates2[0]} - {DemRates2[-1]}")
 print(f"Parallel Run: {ParallelRun}")
 
@@ -34,15 +34,6 @@ if __name__ == '__main__':
     D_final_RAW = []    
 
     nprocs = mp.cpu_count() #Number of workers in the pool
-    
-    InputList = []
-    
-    t1 = time()
-    for r1 in DemRates1:
-        for r2 in DemRates2:
-            SimInput = {frozenset(SPair_1) : r1,
-                        frozenset(SPair_2) : r2} # Remove hardcoding of two pairsand try to see if having only one pair changes anything.
-            InputList.append(SimInput)
     
     if ParallelRun:
         with mp.Manager() as manager:

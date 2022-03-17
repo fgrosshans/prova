@@ -11,12 +11,12 @@ with open("inputs.in") as f: # This imports the simulation parameters from the i
 
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
-    # memoDict = dict() # Uncomment to DISABLE memoization
+    memoDict = dict() # Uncomment to DISABLE memoization
     for i in memoDict.keys():
         flatMemo = i
         if flatInput[1][0] >= flatMemo[1][0] and flatInput[1][1] >= flatMemo[1][1]:
             output = memoDict[i]
-            return output
+            #return output
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
@@ -51,6 +51,7 @@ def Sim(BatchInput,memoDict):
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
     
+    debug = np.zeros((time_steps,len(Q)))
     for Maintimestep in range(time_steps):
         Qt = np.array([q.Qdpairs for q in Q])
         Dt = np.array([q.demands for q in Q]) # Snapping a picture of the system at time t
@@ -58,10 +59,10 @@ def Sim(BatchInput,memoDict):
         L = AllQueues.Losses(Q,Qt,LossParam)
         Bt = AllQueues.Demand(Q)
         qp_q, qp_h = qp.UpdateConstraints(beta,Dt,Bt,Ns,Qt,L,A,Ms)
+        debug[Maintimestep,:] = [q.Qdpairs for q in Q]
         R[:,Maintimestep], memo = qp.QuadLyap(qp_P, qp_q, qp_G, qp_h, qp_A, qp_b,Dt ,memo,memo_len)
         AllQueues.Evolve(Q,Ms,R[:,Maintimestep]) # Note to me: this method DOES evolve demands, it just does it directly on the q objects
-    
-    
+        
     ### OUTPUT
     D_final = [q.demands for q in Q]
     Q_final = [q.Qdpairs for q in Q]
