@@ -16,7 +16,7 @@ def Sim(BatchInput,memoDict):
         flatMemo = i
         if flatInput[1][0] >= flatMemo[1][0] and flatInput[1][1] >= flatMemo[1][1]:
             output = memoDict[i]
-            #return output
+            return output
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
