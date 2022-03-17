@@ -33,6 +33,16 @@ if __name__ == '__main__':
     Q_final_RAW = []
     D_final_RAW = []    
 
+    InputList = []
+    
+    t1 = time()
+    for r1 in DemRates1:
+        for r2 in DemRates2:
+            SimInput = {frozenset(SPair_1) : r1,
+                        frozenset(SPair_2) : r2}
+            InputList.append(SimInput)
+    
+
     nprocs = mp.cpu_count() #Number of workers in the pool
     
     if ParallelRun:
