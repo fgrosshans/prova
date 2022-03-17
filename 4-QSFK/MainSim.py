@@ -11,7 +11,7 @@ with open("inputs.in") as f: # This imports the simulation parameters from the i
 
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
-    memoDict = dict() # Uncomment to DISABLE memoization
+    #memoDict = dict() # Uncomment to DISABLE memoization
     for i in memoDict.keys():
         flatMemo = i
         if flatInput[1][0] >= flatMemo[1][0] and flatInput[1][1] >= flatMemo[1][1]:
