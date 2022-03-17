@@ -35,21 +35,21 @@ def Evolve(Q,Ms,Ns,R,Qt,L,A,Dt,B):
     G = np.vstack((Ms,Ns))
     scheduled = -G@R 
     
-    conflictIndices = np.flatnonzero(scheduled > actual_qp_q) # Find which constraints are broken  
-    doubleQ = np.hstack((actualQ,actualQ)) # I'm checking that nothing violates Q constraints: This vector allows to check both Q and D lines against Q constraints
-    for i in conflictIndices: 
-        to_reassign = doubleQ[i] + np.dot(G[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
-        concurrents = np.flatnonzero(G[i] == -1) # Those are the indices of the -1 terms, the ones generating conflict
-        demandIndex = concurrents[-1] # Demand is the priority in breaking these conflicts
-        R[demandIndex] = min(R[demandIndex],to_reassign)
-        to_reassign-=R[demandIndex]
-        concurrents = concurrents[:-1]
-        rng.shuffle(concurrents) # After serving demand, the rest of the resources are assigned randomly.
-        for j in concurrents:
-            if to_reassign < 0:
-                to_reassign = 0
-            R[j] = min(R[j],to_reassign)
-            to_reassign-=R[j]
+    #conflictIndices = np.flatnonzero(scheduled > actual_qp_q) # Find which constraints are broken  
+    #doubleQ = np.hstack((actualQ,actualQ)) # I'm checking that nothing violates Q constraints: This vector allows to check both Q and D lines against Q constraints
+    #for i in conflictIndices: 
+    #    to_reassign = doubleQ[i] + np.dot(G[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
+    #    concurrents = np.flatnonzero(G[i] == -1) # Those are the indices of the -1 terms, the ones generating conflict
+    #    demandIndex = concurrents[-1] # Demand is the priority in breaking these conflicts
+    #    R[demandIndex] = min(R[demandIndex],to_reassign)
+    #    to_reassign-=R[demandIndex]
+    #    concurrents = concurrents[:-1]
+    #    rng.shuffle(concurrents) # After serving demand, the rest of the resources are assigned randomly.
+    #    for j in concurrents:
+    #        if to_reassign < 0:
+    #            to_reassign = 0
+    #        R[j] = min(R[j],to_reassign)
+    #        to_reassign-=R[j]
     D_t1 = actualD - R[-len(Qt):]
     Q_t1 = actualQ + Ms@R
     for i in range(len(Qt)):

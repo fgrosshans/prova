@@ -82,7 +82,7 @@ def Sim(BatchInput,memoDict):
         violations += AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B)
         AllQueues.Evolve(Q,Ms,Ns,R[:,Maintimestep],Qt,L,A,Dt,B) # This method disobeys to impossible orders. 
     ## OUTPUT
-    # print(f"There were {violations} steps in which the scheduler asked for something impossible, {violations/time_steps*100}% of the times")
+    print(f"There were {violations} steps in which the scheduler asked for something impossible, {violations/time_steps*100}% of the times")
     D_final = [q.demands for q in Q]
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())
