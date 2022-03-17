@@ -12,11 +12,9 @@ from itertools import combinations
 from Q_class import Queue
 import Fred as fg
 
-ArrRates = {
-            frozenset(('A','B')) : 200000,
-            frozenset(('C','B')) : 200000,
-            frozenset(('D','C')) : 200000
-            }
+with open("inputs.in") as f: # Importing variables
+    exec(f.read())
+
 
 def Sim(BatchInput,memoDict):
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
@@ -28,10 +26,7 @@ def Sim(BatchInput,memoDict):
             return output
     ######################################## INPUTS 
     
-    LossParam = .9 # This  is the eta from BP paper
-    t_step = 1e-6; # Length of the time step, s
-    time_steps = int(1e4); # Number of steps to simulate
-    BSM_Success_Probability = 1;
+    
 
     
     ######################################## READING INPUT
@@ -39,8 +34,8 @@ def Sim(BatchInput,memoDict):
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
-    qnet.addpath('ABC')
-    qnet.addpath('BCD')
+    for rt in routes:
+        qnet.addpath(rt)
     M, qs, ts = qnet.QC.matrix(with_sinks=True)
     
     ### Building the model 

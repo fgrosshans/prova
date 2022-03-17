@@ -1,33 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 10 09:30:44 2021
-
-@author: paolo
-"""
-
-### INPUT
-LossParam = .9; # This is the eta from backpressure
-t_step = 1e-6; # Length of the time step, s
-time_steps = int(1e4); # Number of steps to simulate PUT BACK TO 4
-memo_len=int(time_steps/3) # How many configurations should be memoized
-beta = 1      # Demand weight in the scheduling calculation     
-
-ArrRates = {
-            frozenset(('A','B')) : 200000,
-            frozenset(('C','B')) : 200000,
-            frozenset(('D','C')) : 200000,
-            frozenset(('D','A')) : 200000 # This is for the square
-            #frozenset(('E','B')) : 200000,
-            #frozenset(('C','F')) : 200000 #Last two are additional for the double Y
-            }
-
-
 import GlobalFunctions as AllQueues
 import Quadsolve_gurobi as qp
 import numpy as np
 from Q_class import Queue
 import Fred as fg
+
+
+with open("inputs.in") as f: # This imports the simulation parameters from the inputs.in file
+    exec(f.read())
 
 
 def Sim(BatchInput,memoDict):   
@@ -41,12 +20,8 @@ def Sim(BatchInput,memoDict):
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
-    qnet.addpath('ABC')
-    qnet.addpath('ADC')
-    qnet.addpath('BCD')
-    qnet.addpath('BAD')
-
-#    qnet.addpath('EBCF')
+    for rt in routes:
+        qnet.addpath(rt)
     M, QLabels, R_components = qnet.QC.matrix(with_sinks=True)
     
     ### Building the model 

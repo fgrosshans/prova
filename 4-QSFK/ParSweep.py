@@ -12,17 +12,20 @@ import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
 
-n_points = 129 # Number of points along each direction
+with open("inputs.in") as f: # Importing variables from the inputs file
+    exec(f.read())
+
+print(f"###############Recap:###############")
+print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
+print(f"- Losses (1-eta): {1 - Lossparam}, Beta: {beta}")
+print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,"
+print(f"                 - {SPair_2}, {DemRates2[0]} - {DemRates2[-1]}")
+print(f"Parallel Run: {ParallelRun}")
 
 if __name__ == '__main__':
     
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Starting simulation at {now}")
-    SPair_1 = ("A","C")
-    SPair_2 = ("B","D")
-    
-    DemRates1 = np.linspace(1,400000,n_points)
-    DemRates2 = np.linspace(1,400000,n_points)
     
     Output_RAW = [] # tuples of unservedpairs, Qstate, Dstate
 
@@ -41,19 +44,22 @@ if __name__ == '__main__':
                         frozenset(SPair_2) : r2} # Remove hardcoding of two pairsand try to see if having only one pair changes anything.
             InputList.append(SimInput)
     
-    with mp.Manager() as manager:
-        memo = manager.dict()
-        memoList = [memo for i in InputList]
-        with manager.Pool(processes=nprocs) as p:
-            Output_RAW = p.starmap(Sim,zip(InputList,memoList))
-            p.close()
-            p.join()
-    
-    # from functools import partial
-    # memo = dict()
-    # MemoizedSim = partial(Sim,memoDict = memo)
-    # Output_RAW = list(map(MemoizedSim,InputList))
+    if ParallelRun:
+        with mp.Manager() as manager:
+            memo = manager.dict()
+            memoList = [memo for i in InputList]
+            with manager.Pool(processes=nprocs) as p:
+                Output_RAW = p.starmap(Sim,zip(InputList,memoList))
+                p.close()
+                p.join()
+    else:
+        from functools import partial
+        memo = dict()
+        MemoizedSim = partial(Sim,memoDict = memo)
+        Output_RAW = list(map(MemoizedSim,InputList))
    
+        
+    
     t2 = time()-t1
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Ending at {now}. Elapsed time: {np.floor(t2/60)} minutes and {(t2/60-np.floor(t2/60))*60:.2f} seconds")
@@ -95,7 +101,7 @@ if __name__ == '__main__':
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
     schedulername = "FK Quadratic"
-    plt.title(f"% Unserved demands,{schedulername}, square")
+    plt.title(f"% Unserved demands,{schedulername},{topologyname}")
     plt.show()
-    plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
-    np.savez(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,n_points=n_points,schedulername=schedulername,allow_pickle=True)
+    plt.savefig(f"{n_points}x{n_points}_{schedulername}_{topologyname}_{now}_{nprocs}t")
+    np.savez(f"{n_points}x{n_points}_{schedulername}_{topologyname}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,n_points=n_points,schedulername=schedulername,allow_pickle=True)

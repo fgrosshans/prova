@@ -11,17 +11,21 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-n_points = 129 # Number of points along each direction
+
+with open("inputs.in") as f:
+    exec(f.read())
+
+print(f"###############Recap:###############")
+print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
+print(f"- Losses (1-eta): {1 - Lossparam}, Beta: {beta}")
+print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,"
+print(f"                 - {SPair_2}, {DemRates2[0]} - {DemRates2[-1]}")
+print(f"Parallel Run: {ParallelRun}")
 
 if __name__ == '__main__':
     
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Starting simulation at {now}")
-    SPair_1 = ("A","D")
-    SPair_2 = ("E","F")
-    
-    DemRates1 = np.linspace(1,200000,n_points)
-    DemRates2 = np.linspace(1,200000,n_points)
     
     Output_RAW = [] # tuples of unservedpairs, Qstate, Dstate
 
@@ -40,18 +44,20 @@ if __name__ == '__main__':
                         frozenset(SPair_2) : r2}
             InputList.append(SimInput)
     
-    with mp.Manager() as manager:
-        memo = manager.dict()
-        memoList = [memo for i in InputList]
-        with manager.Pool(processes=nprocs) as p:
-            Output_RAW = p.starmap(Sim,zip(InputList,memoList))
-            p.close()
-            p.join()
-    
-    # memo = dict()
-    # MemoizedSim = partial(Sim,memoDict = memo)
-    # Output_RAW = list(map(MemoizedSim,InputList))
-    
+    if ParallelRun:
+        with mp.Manager() as manager:
+            memo = manager.dict()
+            memoList = [memo for i in InputList]
+            with manager.Pool(processes=nprocs) as p:
+                Output_RAW = p.starmap(Sim,zip(InputList,memoList))
+                p.close()
+                p.join()
+    else: 
+        from functools import partial
+        memo = dict()
+        MemoizedSim = partial(Sim,memoDict = memo)
+        Output_RAW = list(map(MemoizedSim,InputList))
+        
     t2 = time()-t1
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Ending at {now}. Elapsed time: {np.floor(t2/60)} minutes and {(t2/60-np.floor(t2/60))*60:.2f} seconds")
@@ -79,21 +85,22 @@ if __name__ == '__main__':
     ylabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates2[0],DemRates2[-1],n_labels)/1000]
     ylabels = np.flip(ylabels)
 
-    try:
-        xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
-        yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
-        xline = [0, xintersect]
-        yline = [yintersect, len(unserved)-1]
-        plt.plot(xline,yline)
-    except ValueError:
-        print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
+    if 200Diag:
+        try:
+            xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
+            yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
+            xline = [0, xintersect]
+            yline = [yintersect, len(unserved)-1]
+            plt.plot(xline,yline)
+        except ValueError:
+            print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
     
     plt.xticks(np.linspace(0,n_points-1,n_labels),xlabels,rotation=70)
     plt.yticks(np.linspace(0,n_points-1,n_labels),ylabels)
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
     schedulername = "FK MaxWeight"
-    plt.title(f"% Unserved demands,{schedulername}, double Y topology")
+    plt.title(f"% Unserved demands,{schedulername}, {topologyname}")
     plt.show()
-    plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
-    np.savez(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,n_points=n_points,schedulername=schedulername,allow_pickle=True)
+    plt.savefig(f"{n_points}x{n_points}_{schedulername}_{topologyname}_{now}_{nprocs}t")
+    np.savez(f"{n_points}x{n_points}_{schedulername}_{topologyname}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,n_points=n_points,schedulername=schedulername,allow_pickle=True)

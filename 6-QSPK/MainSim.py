@@ -1,17 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 10 09:30:44 2021
-
-@author: paolo
-"""
-
 import GlobalFunctions as AllQueues
 import Quadsolve_gurobi as qp
 import numpy as np
 from Q_class import Queue
 import Fred as fg
 
+with open("inputs.in") as f:
+    exec(f.read())
 
 rngConflict = np.random.default_rng()
 
@@ -46,28 +40,14 @@ def Sim(BatchInput,memoDict):
     ############ INPUT
     
     qnet = fg.eswapnet()
-    qnet.addpath('ABC')
-    qnet.addpath('BCD')
-    
-    ArrRates = {
-                frozenset(('A','B')) : 200000,
-                frozenset(('C','B')) : 200000,
-                frozenset(('D','C')) : 200000
-                }
-    
-    M, qs, ts = qnet.QC.matrix(with_sinks=True)
-    LossParam = .9; # This is the eta from backpressure
-    t_step = 1e-6; # Length of the time step, s
-    time_steps = int(1e4); # Number of steps to simulate
-    memo = dict()
-    memo_len=int(time_steps/3) # How many configurations should be memoized
+    for rt in routes:
+        qnet.addpath(rt)
 
-    
-    beta = 1    # Demand weight in the scheduling calculation     
+    M, qs, ts = qnet.QC.matrix(with_sinks=True)
     
     ############ PARAMETERS
     
-    
+    memo = dict()
     
     
     Q = [Queue(tq[0],tq[1],tran_prob=1) for tq in qs]
