@@ -11,14 +11,14 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
-n_points = 129 # Number of points along each direction
+n_points = 3 # Number of points along each direction
 
 if __name__ == '__main__':
     
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Starting simulation at {now}")
-    SPair_1 = ("A","C")
-    SPair_2 = ("B","D")
+    SPair_1 = ("A","D")
+    SPair_2 = ("E","F")
     
     DemRates1 = np.linspace(1,200000,n_points)
     DemRates2 = np.linspace(1,200000,n_points)
@@ -40,17 +40,18 @@ if __name__ == '__main__':
                         frozenset(SPair_2) : r2}
             InputList.append(SimInput)
     
-    with mp.Manager() as manager:
-        memo = manager.dict()
-        memoList = [memo for i in InputList]
-        with manager.Pool(processes=nprocs) as p:
-            Output_RAW = p.starmap(Sim,zip(InputList,memoList))
-            p.close()
-            p.join()
+    # with mp.Manager() as manager:
+    #     memo = manager.dict()
+    #     memoList = [memo for i in InputList]
+    #     with manager.Pool(processes=nprocs) as p:
+    #         Output_RAW = p.starmap(Sim,zip(InputList,memoList))
+    #         p.close()
+    #         p.join()
     
-    # memo = dict()
-    # MemoizedSim = partial(Sim,memoDict = memo)
-    # Output_RAW = list(map(MemoizedSim,InputList))
+    from functools import partial
+    memo = dict()
+    MemoizedSim = partial(Sim,memoDict = memo)
+    Output_RAW = list(map(MemoizedSim,InputList))
     
     t2 = time()-t1
     now = datetime.now().strftime("%H:%M:%S")

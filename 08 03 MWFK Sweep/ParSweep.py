@@ -17,8 +17,8 @@ if __name__ == '__main__':
     
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Starting simulation at {now}")
-    SPair_1 = ("A","C")
-    SPair_2 = ("B","D")
+    SPair_1 = ("A","D")
+    SPair_2 = ("E","F")
     
     DemRates1 = np.linspace(1,200000,n_points)
     DemRates2 = np.linspace(1,200000,n_points)
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
     schedulername = "FK MaxWeight"
-    plt.title(f"% Unserved demands,{schedulername}")
+    plt.title(f"% Unserved demands,{schedulername}, double Y topology")
     plt.show()
     plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
     np.savez(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,n_points=n_points,schedulername=schedulername,allow_pickle=True)

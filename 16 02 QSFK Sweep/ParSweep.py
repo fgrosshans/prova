@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
 
-n_points = 3 # Number of points along each direction
+n_points = 129 # Number of points along each direction
 
 if __name__ == '__main__':
     
@@ -21,8 +21,8 @@ if __name__ == '__main__':
     SPair_1 = ("A","C")
     SPair_2 = ("B","D")
     
-    DemRates1 = np.linspace(1,200000,n_points)
-    DemRates2 = np.linspace(1,200000,n_points)
+    DemRates1 = np.linspace(1,400000,n_points)
+    DemRates2 = np.linspace(1,400000,n_points)
     
     Output_RAW = [] # tuples of unservedpairs, Qstate, Dstate
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
         xline = [0, xintersect]
         yline = [yintersect, len(unserved)-1]
-        plt.plot(xline,yline)
+        # plt.plot(xline,yline)
     except ValueError:
         print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
     
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
     plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
     schedulername = "FK Quadratic"
-    plt.title(f"% Unserved demands,{schedulername}")
+    plt.title(f"% Unserved demands,{schedulername}, square")
     plt.show()
     plt.savefig(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t")
     np.savez(f"{n_points}x{n_points}_{schedulername}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,n_points=n_points,schedulername=schedulername,allow_pickle=True)
