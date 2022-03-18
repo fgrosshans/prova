@@ -1,5 +1,4 @@
-
-LossParam = 1; # This is the eta from backpressure
+kappa = 2.3e6 # s^-1: this is a sort of "Loss rate" that's used together with the time step T to calculate the loss probability = exp(-kT)
 t_step = 1e-6; # Length of the time step, s
 time_steps = int(1e4); # Number of steps to simulate per pixel
 memo_len=int(time_steps/2) # How many configurations should be memoized - this refers to the memoization inside the pixels

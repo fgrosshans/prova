@@ -7,26 +7,12 @@ Created on Fri Dec 10 09:30:44 2021
 """
 
 ### INPUT
-LossParam = .9; # This is the eta from backpressure
-t_step = 1e-6; # Length of the time step, s
-time_steps = int(1e4); # Number of steps to simulate
-memo_len=int(time_steps/3) # How many configurations should be memoized
-beta = 1      # Demand weight in the scheduling calculation     
-
-ArrRates = {
-            frozenset(('A','B')) : 200000,
-            frozenset(('C','B')) : 200000,
-            frozenset(('D','C')) : 200000,
-            frozenset(('F','C')) : 200000,
-            frozenset(('B','E')) : 200000
-            }
-
-
 import GlobalFunctions as AllQueues
 import MWsolve_gurobi as mw
 import numpy as np
 from Q_class import Queue
 import Fred as fg
+from math import exp
 
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
@@ -39,8 +25,8 @@ def Sim(BatchInput,memoDict):
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
-    qnet.addpath('ABCD')
-    qnet.addpath('EBCF')
+    for rt in routes:
+        qnet.addpath(rt)
     M, QLabels, R_components = qnet.QC.matrix(with_sinks=True)
     
     ### Building the model 
@@ -69,6 +55,7 @@ def Sim(BatchInput,memoDict):
     memo = dict() # Initializing the memory
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
+    LossParam = 1 - exp(-kappa*t_step)
     
     for Maintimestep in range(time_steps):
         Qt = np.array([q.Qdpairs for q in Q])

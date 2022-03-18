@@ -15,6 +15,7 @@ import MWsolve_gurobi as mw
 import numpy as np
 from Q_class import Queue
 import Fred as fg
+from math import exp
 
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
@@ -61,6 +62,7 @@ def Sim(BatchInput,memoDict):
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
     violations=0
+    LossParam = 1 - exp(-kappa*t_step)
 
     for Maintimestep in range(time_steps):
         Qt = np.array([q.Qdpairs for q in Q])

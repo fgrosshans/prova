@@ -11,6 +11,7 @@ import GlobalFunctions as AllQueues
 from itertools import combinations
 from Q_class import Queue
 import Fred as fg
+from math import exp
 
 with open("inputs.in") as f: # Importing variables
     exec(f.read())
@@ -27,10 +28,12 @@ def Sim(BatchInput,memoDict):
     ######################################## INPUTS 
     
     
-
+    # See inputs.in file!
     
     ######################################## READING INPUT
     
+    LossParam = 1 - exp(-kappa*t_step)
+
     # Deriving the scheduling matrix and the lists of queues and scheduling rates
     # from FG's code, see fg.smalltest() for more information    
     qnet = fg.eswapnet()
@@ -56,7 +59,7 @@ def Sim(BatchInput,memoDict):
     for label in nodeset:
         ConnectedTo[label] = [q for q in Q if (label in q.nodes)]
     
-       
+      
     
     ######################################## MAIN LOOP
     for Maintimestep in range(time_steps):

@@ -3,6 +3,7 @@ import MWsolve_gurobi as mw
 import numpy as np
 from Q_class import Queue
 import Fred as fg
+from math import exp
 
 with open("inputs.in") as f:
     exec(f.read())
@@ -79,7 +80,7 @@ def Sim(BatchInput,memoDict):
     memo = dict() # Initializing the memory
     alpha = [getattr(q,"GenPParam",0) for q in Q] # Already converted to timesteps^-1
     dem_arr_rates = [getattr(q,"PoissParam",0) for q in Q] # Already converted to timesteps^-1
-    
+    LossParam = 1 - exp(-kappa*t_step)
     
     for Maintimestep in range(time_steps):
         Qt = np.array([q.Qdpairs for q in Q])

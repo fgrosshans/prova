@@ -3,6 +3,7 @@ import Quadsolve_gurobi as qp
 import numpy as np
 from Q_class import Queue
 import Fred as fg
+from math import exp
 
 
 with open("inputs.in") as f: # This imports the simulation parameters from the inputs.in file
@@ -50,6 +51,7 @@ def Sim(BatchInput,memoDict):
     memo = dict() # Initializing the memory
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
+    LossParam = 1 - exp(-kappa*t_step)
     
     debug = np.zeros((time_steps,len(Q)))
     for Maintimestep in range(time_steps):
