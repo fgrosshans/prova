@@ -4,14 +4,16 @@ from time import time
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from datetime import datetime
+from math import exp
 
 with open("inputs.in") as f:
     exec(f.read())
 
+LossParam = 1 - exp(-kappa*t_step) # Done here too, just so that the user can check
 print(f"###############Recap:###############")
 print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
-print(f"- Losses (1-eta): {1 - Lossparam}, Beta: {beta}")
-print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,"
+print(f"- Losses (1-eta): {1 - LossParam}, Beta: {beta}")
+print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,")
 print(f"                 - {SPair_2}, {DemRates2[0]} - {DemRates2[-1]}")
 print(f"Parallel Run: {ParallelRun}")
 
@@ -78,7 +80,7 @@ if __name__ == '__main__':
     ylabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates2[0],DemRates2[-1],n_labels)/1000]
     ylabels = np.flip(ylabels)
 
-    if 200Diag:
+    if Plot200Diag == True:
         try:
             xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
             yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]

@@ -5,6 +5,10 @@ from Q_class import Queue
 import Fred as fg
 from math import exp
 
+with open("inputs.in") as f:
+    exec(f.read())
+
+
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
     # memoDict = dict() # Uncomment to DISABLE memoization
@@ -21,6 +25,19 @@ def Sim(BatchInput,memoDict):
     M, QLabels, R_components = qnet.QC.matrix(with_sinks=True)
     
     ### Building the model 
+    
+    
+    ###Ranking the queues: this is useful for conflict management
+    to_rank = qnet.QC.transitions
+    rank = {i:0 for i in QLabels}
+    
+    for i in to_rank:
+        rank[i.outputs[0]] = max(rank[i.inputs[0]]+1,rank[i.inputs[1]]+1,rank[i.outputs[0]])
+    for i in to_rank: # THIS IS NOT AN ERROR! The code needs to comb through the list twice in order to assign correct ranks
+        rank[i.outputs[0]] = max(rank[i.inputs[0]]+1,rank[i.inputs[1]]+1,rank[i.outputs[0]])
+    
+    ###
+    
     Q = [Queue(tq[0],tq[1],tran_prob=1) for tq in QLabels]
     
     [q.SetPhysical(ArrRates[q.nodes],t_step) for q in Q if q.nodes in ArrRates]

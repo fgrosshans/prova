@@ -116,14 +116,24 @@ class eswapnet():
                                     name=f'{a}[{b}]{c}' ) )
 def smalltest():
     qnet = eswapnet()
-    qnet.addpath('abc')
-    qnet.addpath('bcd')
+    # qnet.addpath('abc')
+    # qnet.addpath('bcd')
     qnet.addpath('abcd')
+    qnet.addpath('ebcf')
+    
+   
 #    qnet.addpath('AbcD')
     
     M, qs, ts = qnet.QC.matrix(with_sinks=True)
     print(f' {ts}')
     for q,line in zip(qs, M) : print(f'{q}:{line}')
+    
+    to_rank = qnet.QC.transitions
+    rank = {i:0 for i in qs}
+    
+    for i in to_rank:
+        rank[i.outputs[0]] = max(rank[i.inputs[0]]+1,rank[i.inputs[1]]+1,rank[i.outputs[0]])
+    
     
     plt.figure()
     nx.draw(qnet.G, with_labels=True)
