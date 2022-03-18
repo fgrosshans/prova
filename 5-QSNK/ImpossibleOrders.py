@@ -8,11 +8,14 @@ def BreakConflicts(R,G,Q,rank,qs):
     scheduled = -G@R
     actual_qp_q = np.hstack((actualQ,actualD))
     conflictIndices = list(np.flatnonzero(scheduled > actual_qp_q)) # Find which constraints are broken  
-    if len(conflictIndices) == 2 and (rank[qs[conflictIndices[0]]] != rank[qs[conflictIndices[1]]]):
-        breakpoint()
     doubleQ = np.hstack((actualQ,actualQ)) # This vector is useful (see later) in the offchance that more demands are scheduled to be served than there are available pairs 
+    doubleqs = np.hstack((qs,qs)) # This vector contains ALL labels, i.e. for demand queues too.	
     rng.shuffle(conflictIndices) # Tackle conflicts in a random order...
-    conflictIndices.sort(key=lambda x: rank[qs[x]]) # Inside their rank.
+    conflictIndices.sort(key=lambda x: rank[doubleqs[x]]) # Inside their rank.
+    dbg_conflictRanks = [rank[doubleqs[i]] for i in conflictIndices if rank[doubleqs[i]] not in dbg_conflictRanks]
+    if len(dbg_conflictRanks) >= 2:
+        breakpoint()
+
     for i in conflictIndices: 
         to_reassign = doubleQ[i] + np.dot(G[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
         concurrents = np.flatnonzero(G[i] == -1) # Those are the indices of the -1 terms, the ones generating conflict
