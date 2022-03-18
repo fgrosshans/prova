@@ -4,6 +4,7 @@ import numpy as np
 from Q_class import Queue
 import Fred as fg
 from math import exp
+from ImpossibleOrders import BreakConflicts
 
 with open("inputs.in") as f:
     exec(f.read())
@@ -67,6 +68,7 @@ def Sim(BatchInput,memoDict):
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
     violations=0
+    violationsPre = 0
     LossParam = 1 - exp(-kappa*t_step)
     
     for Maintimestep in range(time_steps):
@@ -77,10 +79,13 @@ def Sim(BatchInput,memoDict):
         B = AllQueues.Demand(Q)
         qp_q, qp_h = qp.UpdateConstraints(Q,beta, Dt, dem_arr_rates, Ns, Qt, LossParam, alpha, Ms)
         R[:,Maintimestep], memo = qp.QuadLyap(qp_P, qp_q, qp_G, qp_h, qp_A, qp_b,Dt ,memo,memo_len)
+        if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
+            violationsPre+=1
+            R[:,Maintimestep] = BreakConflicts(R[:,Maintimestep],qp_G,Q,rank,QLabels)
         violations += AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B)
         AllQueues.Evolve(Q,Ms,Ns,R[:,Maintimestep],Qt,L,A,Dt,B) # This method disobeys to impossible orders. 
     ## OUTPUT
-    print(f"There were {violations} steps in which the scheduler asked for something impossible, {violations/time_steps*100}% of the times")
+    print(f"Impossible orders: {violationsPre}/{time_steps}. After correction: {violations}/{time_steps}")
     D_final = [q.demands for q in Q]
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())
