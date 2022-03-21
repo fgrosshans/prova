@@ -93,15 +93,15 @@ if __name__ == '__main__':
     xlabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates1[0],DemRates1[-1],n_labels)/1000]
     ylabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates2[0],DemRates2[-1],n_labels)/1000]
     ylabels = np.flip(ylabels)
-
-    try:
-        xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
-        yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
-        xline = [0, xintersect]
-        yline = [yintersect, len(unserved)-1]
-        # plt.plot(xline,yline)
-    except ValueError:
-        print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
+    if Plot200Diag:
+        try:
+            xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
+            yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
+            xline = [0, xintersect]
+            yline = [yintersect, len(unserved)-1]
+            plt.plot(xline,yline)
+        except ValueError:
+            print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
     
     plt.xticks(np.linspace(0,n_points-1,n_labels),xlabels,rotation=70)
     plt.yticks(np.linspace(0,n_points-1,n_labels),ylabels)
