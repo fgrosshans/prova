@@ -7,29 +7,7 @@ from ImpossibleOrders import BreakConflicts
 
 with open("inputs.in") as f:
     exec(f.read())
-
-rngConflict = np.random.default_rng()
-
-def BreakConflicts(G,q,R):
-    scheduled = -G@R
-    conflictIndices = np.flatnonzero(scheduled > q)
-    for i in conflictIndices: # Which constraints are broken  
-        to_reassign = q[i] + np.dot(G[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
-        concurrents = np.flatnonzero(G[i] == -1) #Those are the indices of the -1 terms, the ones generating conflict
-        demandIndex = concurrents[-1] 
-        R[demandIndex] = min(R[demandIndex],to_reassign)
-        to_reassign-=R[demandIndex]
-        concurrents = concurrents[:-1]
-        rngConflict.shuffle(concurrents)
-        for j in concurrents:
-            if to_reassign < 0:
-                to_reassign = 0
-            R[j] = min(R[j],to_reassign)
-            to_reassign-=R[j]
-    return R
-            
-                
-        
+      
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
     # memoDict = dict() # Uncomment to DISABLE memoization
@@ -52,7 +30,8 @@ def Sim(BatchInput,memoDict):
     
     
     Q = [Queue(tq[0],tq[1],tran_prob=1) for tq in qs]
-    violations = np.zeros(2*len(Q))
+    violations = 0
+    violationsPre = 0
     nodeset = set()
     for tq in qs:
         nodeset = nodeset.union(set(tq))# Set of the nodes. May not be necessary now but will be useful going forward
@@ -73,6 +52,15 @@ def Sim(BatchInput,memoDict):
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
     
     #Instantiate the problem here
+    ###Ranking the queues: this is useful for conflict management
+    to_rank = qnet.QC.transitions
+    rank = {i:0 for i in qs}
+    
+    for i in to_rank:
+        rank[i.outputs[0]] = max(rank[i.inputs[0]]+1,rank[i.inputs[1]]+1,rank[i.outputs[0]])
+    for i in to_rank: # THIS IS NOT AN ERROR! The code needs to comb through the list twice in order to assign correct ranks
+        rank[i.outputs[0]] = max(rank[i.inputs[0]]+1,rank[i.inputs[1]]+1,rank[i.outputs[0]])
+    
     
     qp_P = (Ms.T)@Ms + 2*beta*(Ns.T)@Ns #These are computed here because they don't vary.
     qp_G = np.vstack((Ms,Ns))
@@ -120,13 +108,13 @@ def Sim(BatchInput,memoDict):
                         R[len(ts) + i,Maintimestep] = min(R[len(ts) + i,Maintimestep],partialsol[len(ts) + i]) 
         if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
             violationsPre+=1
-            R[:,Maintimestep] = BreakConflicts(R[:,Maintimestep],qp_G,Q,rank,QLabels)
+            R[:,Maintimestep] = BreakConflicts(R[:,Maintimestep],qp_G,Q,rank,qs)
         
         if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
             violations+=1
         AllQueues.Evolve(Q,Ms,R[:,Maintimestep])
     
-    if quiet == False
+    if quiet == False:
         print(f"Impossible orders: {violationsPre}/{time_steps}. After correction: {violations}/{time_steps}")
     D_final = [q.demands for q in Q]
     Q_final = [q.Qdpairs for q in Q]

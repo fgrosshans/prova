@@ -23,8 +23,8 @@ else:
 
 print(f"###############Recap:###############")
 print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
-print(f"- Losses (1-eta): {1 - Lossparam}, Beta: {beta}")
-print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,"
+print(f"- Losses (1-eta): {1 - LossParam}, Beta: {beta}")
+print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,")
 print(f"                 - {SPair_2}, {DemRates2[0]} - {DemRates2[-1]}")
 print(f"Parallel Run: {ParallelRun}")
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     ylabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates2[0],DemRates2[-1],n_labels)/1000]
     ylabels = np.flip(ylabels)
 
-    if 200Diag:
+    if Plot200Diag:
         try:
             xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
             yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     schedulername = "FK MaxWeight"
     plt.title(f"% Unserved demands,{schedulername}, {topologyname}")
     ytext = int(len(unserved)/4)
-    xtext = len(unserved) - int(len(unserved)/3)
+    xtext = len(unserved)
     plt.text(xtext,ytext,f"Beta = {beta}\n Eta = {1-LossParam:.2f}\n t_step = {t_step} s")
     
     plt.show()

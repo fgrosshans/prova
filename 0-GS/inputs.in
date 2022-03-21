@@ -26,5 +26,7 @@ DemRates2 = np.linspace(1,200000,n_points)
 
 ParallelRun = True    # Huge performance gain if True. This should be set to False only for debugging reasons (multiprocessing does not support breakpoints)
 
+Plot200Diag = True
+
 ############# EXCLUSIVE TO GREEDY SCHEDULER
 BSM_Success_Probability = 1; # This comes from an old implementation featuring tunable BSM success probability

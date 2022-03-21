@@ -22,8 +22,8 @@ else:
 
 print(f"##############################Recap:##############################")
 print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
-print(f"- Losses (1-eta): {1 - Lossparam}, Beta: {beta}")
-print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,"
+print(f"- Losses (1-eta): {1 - LossParam:.2f}, Beta: {beta}")
+print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,")
 print(f"                 - {SPair_2}, {DemRates2[0]} - {DemRates2[-1]}")
 print(f"Parallel Run: {ParallelRun}")
 
@@ -57,11 +57,11 @@ if __name__ == '__main__':
                 p.close()
                 p.join()
     else:
-    from functools import partial
-    memo = dict()
-    MemoizedSim = partial(Sim,memoDict = memo)
-    Output_RAW = list(map(MemoizedSim,InputList))
-    
+        from functools import partial
+        memo = dict()
+        MemoizedSim = partial(Sim,memoDict = memo)
+        Output_RAW = list(map(MemoizedSim,InputList))
+        
     t2 = time()-t1
     now = datetime.now().strftime("%H:%M:%S")
     print(f"Ending at {now}. Elapsed time: {np.floor(t2/60)} minutes and {(t2/60-np.floor(t2/60))*60:.2f} seconds")
@@ -89,15 +89,16 @@ if __name__ == '__main__':
     ylabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates2[0],DemRates2[-1],n_labels)/1000]
     ylabels = np.flip(ylabels)
 
-    try:
-        xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
-        yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
-        xline = [0, xintersect]
-        yline = [yintersect, len(unserved)-1]
-        plt.plot(xline,yline)
-    except ValueError:
-        print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
-    
+    if Plot200Diag:
+        try:
+            xintersect = np.where(DemRates1 == np.atleast_1d(200000))[0]
+            yintersect = np.where(np.flip(DemRates2) == np.atleast_1d(200000))[0]
+            xline = [0, xintersect]
+            yline = [yintersect, len(unserved)-1]
+            plt.plot(xline,yline)
+        except ValueError:
+            print("200.00 is not a tick in the plot, can't plot the optimal diagonal")
+        
     plt.xticks(np.linspace(0,n_points-1,n_labels),xlabels,rotation=70)
     plt.yticks(np.linspace(0,n_points-1,n_labels),ylabels)
     plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
@@ -106,7 +107,7 @@ if __name__ == '__main__':
     plt.title(f"% Unserved demands,{schedulername},{topologyname}")
     plt.show()
     ytext = int(len(unserved)/4)
-    xtext = len(unserved) - int(len(unserved)/3)
+    xtext = len(unserved)
     plt.text(xtext,ytext,f"Beta = {beta}\n Eta = {1-LossParam:.2f}\n t_step = {t_step} s")
     
     plt.savefig(f"{n_points}x{n_points}_{schedulername}_{topologyname}_{now}_{nprocs}t")

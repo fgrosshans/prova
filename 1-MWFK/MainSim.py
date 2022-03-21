@@ -12,6 +12,11 @@ import MWsolve_gurobi as mw
 import numpy as np
 from Q_class import Queue
 import Fred as fg
+import numpy as np
+
+with open("inputs.in") as f:
+    exec(f.read())
+
 
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples

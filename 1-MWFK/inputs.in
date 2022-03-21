@@ -15,12 +15,14 @@ topologyname = "Chain" # Just for the plot, type whatever you want here
 
 routes = ['ABC','BCD'] # Routes to serve the service pairs. Notice that this is separate from the SPair variables, so that several routes may be specified for a single pair.
 
-n_points = 33 # Number of pixels for the stability plot
+n_points = 3 # Number of pixels for the stability plot
 
 SPair_1 = ("A","C") #Service pairs
 SPair_2 = ("B","D")
     
 DemRates1 = np.linspace(1,200000,n_points) # points along the first and second pair directions
 DemRates2 = np.linspace(1,200000,n_points)
+
+Plot200Diag = True
 
 ParallelRun = True    # Huge performance gain if True. This should be set to False only for debugging reasons (multiprocessing does not support breakpoints)

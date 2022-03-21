@@ -47,8 +47,8 @@ def CheckActualFeasibility(M,N,R,Q,D,L,A,B):
     actualD = D + B
     actual_qp_q = np.hstack((actualQ,actualD))
     check = scheduled > actual_qp_q
-    #error = bool(check[1])
-    return np.array(check,dtype=bool)
+    
+    return check.any()
             
 
 

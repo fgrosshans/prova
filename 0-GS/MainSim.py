@@ -11,7 +11,7 @@ import GlobalFunctions as AllQueues
 from itertools import combinations
 from Q_class import Queue
 import Fred as fg
-from math import exp
+import numpy as np
 
 with open("inputs.in") as f: # Importing variables
     exec(f.read())
