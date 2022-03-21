@@ -32,6 +32,6 @@ def BreakConflicts(R,G,Q,rank,qs):
         scheduled = -G@R
         conflictIndices = list(np.flatnonzero(scheduled > actual_qp_q)) # Find which constraints are broken  
         workingRank+=1
-        if workingRank > maxRank:
-            raise ValueError("There is something very wrong with conflict management, should have debugged that better")
+        #if workingRank > maxRank:
+        #    print(f"Rank {workingRank}")
     return R
