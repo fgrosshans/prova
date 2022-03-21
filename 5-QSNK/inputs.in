@@ -15,7 +15,7 @@ topologyname = "Chain" # Just for the plot, type whatever you want here
 
 routes = ['ABC','BCD'] # Routes to serve the service pairs. Notice that this is separate from the SPair variables, so that several routes may be specified for a single pair.
 
-n_points = 17 # Number of pixels for the stability plot
+n_points = 65 # Number of pixels for the stability plot
 
 SPair_1 = ("A","C") #Service pairs
 SPair_2 = ("B","D")
