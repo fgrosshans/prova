@@ -9,25 +9,6 @@ with open("inputs.in") as f:
     exec(f.read())
 
 
-rng = np.random.default_rng()
-def BreakConflicts(Ms,q,R): # This function solves the inter-node conflicts.
-    scheduled = -Ms@R
-    conflictIndices = np.flatnonzero(scheduled > q) # Find which constraints are broken  
-    for i in conflictIndices: 
-        to_reassign = q[i] + np.dot(Ms[i] == 1,R) # How many pairs are actually available, i.e. constraints + POSITIVE incoming scheduling
-        concurrents = np.flatnonzero(Ms[i] == -1) # Those are the indices of the -1 terms, the ones generating conflict
-        demandIndex = concurrents[-1] # Demand is the priority in breaking these conflicts
-        R[demandIndex] = min(R[demandIndex],to_reassign)
-        to_reassign-=R[demandIndex]
-        concurrents = concurrents[:-1]
-        rng.shuffle(concurrents) # After serving demand, the rest of the resources are assigned randomly.
-        for j in concurrents:
-            if to_reassign < 0:
-                to_reassign = 0
-            R[j] = min(R[j],to_reassign)
-            to_reassign-=R[j]
-
-
 def Sim(BatchInput,memoDict):
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
     # memoDict = dict() # Uncomment to DISABLE memoization
@@ -47,6 +28,16 @@ def Sim(BatchInput,memoDict):
     M, qs, ts = qnet.QC.matrix(with_sinks=True)
     
     ### Building the model 
+    to_rank = qnet.QC.transitions
+    rank = {i:0 for i in qs}
+    
+    for i in to_rank:
+        rank[i.outputs[0]] = max(rank[i.inputs[0]]+1,rank[i.inputs[1]]+1,rank[i.outputs[0]])
+    for i in to_rank: # THIS IS NOT AN ERROR! The code needs to comb through the list twice in order to assign >
+        rank[i.outputs[0]] = max(rank[i.inputs[0]]+1,rank[i.inputs[1]]+1,rank[i.outputs[0]])
+    
+    ###
+
     Q = [Queue(tq[0],tq[1],tran_prob=1) for tq in qs]
     
     nodeset = set()
@@ -76,7 +67,8 @@ def Sim(BatchInput,memoDict):
     
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
-    
+    violations = 0
+    violationsPre = 0
     memo = dict() # Initializing the memory
     alpha = [getattr(q,"GenPParam",0) for q in Q] # Already converted to timesteps^-1
     dem_arr_rates = [getattr(q,"PoissParam",0) for q in Q] # Already converted to timesteps^-1
@@ -104,13 +96,13 @@ def Sim(BatchInput,memoDict):
                         R[len(ts) + i,Maintimestep] = min(R[len(ts) + i,Maintimestep],partialsol[len(ts) + i]) 
         if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
             violationsPre+=1
-            R[:,Maintimestep] = BreakConflicts(R[:,Maintimestep],qp_G,Q,rank,QLabels)
+            R[:,Maintimestep] = BreakConflicts(R[:,Maintimestep],qp_G,Q,rank,qs)
         
         if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
             violations+=1
         AllQueues.Evolve(Q,Ms,R[:,Maintimestep])
     
-    if quiet == False
+    if quiet == False:
         print(f"Impossible orders: {violationsPre}/{time_steps}. After correction: {violations}/{time_steps}")
     D_final = [q.demands for q in Q]
     Q_final = [q.Qdpairs for q in Q]
