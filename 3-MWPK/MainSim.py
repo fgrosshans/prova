@@ -3,7 +3,7 @@ import MWsolve_gurobi as mw
 import numpy as np
 from Q_class import Queue
 import Fred as fg
-from math import exp
+from ImpossibleOrders import BreakConflicts
 
 with open("inputs.in") as f:
     exec(f.read())
@@ -102,11 +102,16 @@ def Sim(BatchInput,memoDict):
                             R[len(ts) + i,Maintimestep] += partialsol[len(ts) + i]
                     elif flag == 2: # This node requested consumption, but the other node had already requested it -> break the tie
                         R[len(ts) + i,Maintimestep] = min(R[len(ts) + i,Maintimestep],partialsol[len(ts) + i]) 
-        actualQ = Qt+A-L
-        BreakConflicts(Ms, actualQ,R[:,Maintimestep])
+        if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
+            violationsPre+=1
+            R[:,Maintimestep] = BreakConflicts(R[:,Maintimestep],qp_G,Q,rank,QLabels)
+        
+        if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
+            violations+=1
         AllQueues.Evolve(Q,Ms,R[:,Maintimestep])
     
-    
+    if quiet == False
+        print(f"Impossible orders: {violationsPre}/{time_steps}. After correction: {violations}/{time_steps}")
     D_final = [q.demands for q in Q]
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())

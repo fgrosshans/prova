@@ -90,7 +90,8 @@ def Sim(BatchInput,memoDict):
             violations+=1
         AllQueues.Evolve(Q,Ms,Ns,R[:,Maintimestep],Qt,L,A,Dt,B) # This method disobeys to impossible orders. 
     ## OUTPUT
-    print(f"Impossible orders: {violationsPre}/{time_steps}. After correction: {violations}/{time_steps}")
+    if quiet == False
+        print(f"Impossible orders: {violationsPre}/{time_steps}. After correction: {violations}/{time_steps}")
     D_final = [q.demands for q in Q]
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())

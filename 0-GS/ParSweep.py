@@ -105,5 +105,9 @@ if __name__ == '__main__':
     schedulername = "GS"
     plt.title(f"% Unserved demands,{schedulername},{topologyname}")
     plt.show()
+    ytext = int(len(unserved)/4)
+    xtext = len(unserved) - int(len(unserved)/3)
+    plt.text(xtext,ytext,f"Beta = {beta}\n Eta = {1-LossParam:.2f}\n t_step = {t_step} s")
+    
     plt.savefig(f"{n_points}x{n_points}_{schedulername}_{topologyname}_{now}_{nprocs}t")
     np.savez(f"{n_points}x{n_points}_{schedulername}_{topologyname}_{now}_{nprocs}t",unserved = unserved, Q_final=Q_final, D_final=D_final, pair1=SPair_1,pair2=SPair_2,rates1=DemRates1,rates2=DemRates2,threads=nprocs,n_points=n_points,schedulername=schedulername,allow_pickle=True)

@@ -15,7 +15,7 @@ import MWsolve_gurobi as mw
 import numpy as np
 from Q_class import Queue
 import Fred as fg
-from math import exp
+from ImpossibleOrders import BreakConflicts
 
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
@@ -75,10 +75,16 @@ def Sim(BatchInput,memoDict):
         B = AllQueues.Demand(Q)
         qp_q, qp_h = mw.UpdateConstraints(Q,beta, Dt, dem_arr_rates, Ns, Qt, LossParam, alpha, Ms)
         R[:,Maintimestep], memo = mw.Schedule(qp_q, qp_G, qp_h, qp_A, qp_b,Dt ,memo,memo_len)
-        violations += AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B)
+        if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
+            violationsPre+=1
+            R[:,Maintimestep] = BreakConflicts(R[:,Maintimestep],qp_G,Q,rank,QLabels)
+        if AllQueues.CheckActualFeasibility(Ms,Ns,R[:,Maintimestep],Qt,Dt,L,A,B):
+            violations+=1
+        
         AllQueues.Evolve(Q,Ms,Ns,R[:,Maintimestep],Qt,L,A,Dt,B) # This method disobeys to impossible orders. 
     ## OUTPUT
-    # print(f"There were {violations} steps in which the scheduler asked for something impossible, {violations/time_steps*100}% of the times")
+    if quiet == False
+        print(f"Impossible orders: {violationsPre}/{time_steps}. After correction: {violations}/{time_steps}")
     D_final = [q.demands for q in Q]
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())
