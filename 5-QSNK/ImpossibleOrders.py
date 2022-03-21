@@ -12,7 +12,7 @@ def BreakConflicts(R,G,Q,rank,qs):
     doubleqs = np.hstack((qs,qs)) # This vector contains ALL labels, i.e. for demand queues too.	
     rng.shuffle(conflictIndices) # Tackle conflicts in a random order...
     conflictIndices.sort(key=lambda x: rank[doubleqs[x]]) # Inside their rank.
-    dbg_conflictRanks = [rank[doubleqs[i]] for i in conflictIndices if rank[doubleqs[i]] not in dbg_conflictRanks]
+    dbg_conflictRanks = list(set([rank[doubleqs[i]] for i in conflictIndices]))
     if len(dbg_conflictRanks) >= 2:
         breakpoint()
 

@@ -94,7 +94,10 @@ def Sim(BatchInput,memoDict):
             
     dem_arr_rates = [getattr(q,"PoissParam",0) for q in Q] # Already converted to timesteps^-1
     alpha = [getattr(q,"GenPParam",0) for q in Q] # Already converted to timesteps^-1
-    LossParam = 1 - exp(-kappa*t_step)
+    if PhotonLifeTime == "Inf":
+        LossParam = 1
+    else:
+        LossParam = 1 - t_step/PhotonLifeTime
     
     for Maintimestep in range(time_steps):
         Qt = np.array([q.Qdpairs for q in Q])

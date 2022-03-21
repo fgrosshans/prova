@@ -8,6 +8,12 @@ from datetime import datetime
 with open("inputs.in") as f:
     exec(f.read())
 
+if PhotonLifeTime == "Inf":
+    LossParam = 1
+else:
+    LossParam = 1 - t_step/PhotonLifeTime
+
+
 print(f"###############Recap:###############")
 print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
 print(f"- Losses (1-eta): {1 - Lossparam}, Beta: {beta}")

@@ -62,8 +62,11 @@ def Sim(BatchInput,memoDict):
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
     violations=0
-    LossParam = 1 - exp(-kappa*t_step)
-
+    if PhotonLifeTime == "Inf":
+        LossParam = 1
+    else:
+        LossParam = 1 - t_step/PhotonLifeTime
+    
     for Maintimestep in range(time_steps):
         Qt = np.array([q.Qdpairs for q in Q])
         Dt = np.array([q.demands for q in Q]) # Those are NOT the demand arrivals: they are the total demands pending across each queue.

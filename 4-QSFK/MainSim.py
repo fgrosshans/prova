@@ -51,7 +51,10 @@ def Sim(BatchInput,memoDict):
     memo = dict() # Initializing the memory
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
-    LossParam = 1 - exp(-kappa*t_step)
+    if PhotonLifeTime == "Inf":
+        LossParam = 1
+    else:
+        LossParam = 1 - t_step/PhotonLifeTime
     
     debug = np.zeros((time_steps,len(Q)))
     for Maintimestep in range(time_steps):

@@ -3,7 +3,6 @@ import Quadsolve_gurobi as qp
 import numpy as np
 from Q_class import Queue
 import Fred as fg
-from math import exp
 from ImpossibleOrders import BreakConflicts
 
 with open("inputs.in") as f:
@@ -69,7 +68,11 @@ def Sim(BatchInput,memoDict):
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
     violations=0
     violationsPre = 0
-    LossParam = 1 - exp(-kappa*t_step)
+    
+    if PhotonLifeTime == "Inf":
+        LossParam = 1
+    else:
+        LossParam = 1 - t_step/PhotonLifeTime
     
     for Maintimestep in range(time_steps):
         Qt = np.array([q.Qdpairs for q in Q])

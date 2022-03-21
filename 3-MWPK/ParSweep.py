@@ -8,10 +8,15 @@ from datetime import datetime
 with open("inputs.in") as f:
     exec(f.read())
 
+if PhotonLifeTime == "Inf":
+    LossParam = 1
+else:
+    LossParam = 1 - t_step/PhotonLifeTime
+
 print(f"###############Recap:###############")
 print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
 print(f"- Losses (1-eta): {1 - Lossparam}, Beta: {beta}")
-print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,"
+print(f"- Service pairs: - {SPair_1}, {DemRates1[0]} - {DemRates1[-1]} Hz,")
 print(f"                 - {SPair_2}, {DemRates2[0]} - {DemRates2[-1]}")
 print(f"Parallel Run: {ParallelRun}")
 

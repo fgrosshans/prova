@@ -12,7 +12,6 @@ import MWsolve_gurobi as mw
 import numpy as np
 from Q_class import Queue
 import Fred as fg
-from math import exp
 
 def Sim(BatchInput,memoDict):   
     flatInput = tuple(zip(*BatchInput.items())) # List of tuples
@@ -55,7 +54,10 @@ def Sim(BatchInput,memoDict):
     memo = dict() # Initializing the memory
     ProbDim = len(Ms[1]) # Dimensionality of the problem
     R = np.zeros((ProbDim,time_steps)) # Initializing the R array, that will contain the R vector at each time step
-    LossParam = 1 - exp(-kappa*t_step)
+    if PhotonLifeTime == "Inf":
+        LossParam = 1
+    else:
+        LossParam = 1 - t_step/PhotonLifeTime
     
     for Maintimestep in range(time_steps):
         Qt = np.array([q.Qdpairs for q in Q])

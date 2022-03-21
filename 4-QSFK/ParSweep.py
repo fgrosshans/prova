@@ -16,7 +16,11 @@ from math import exp
 with open("inputs.in") as f: # Importing variables from the inputs file
     exec(f.read())
 
-LossParam = 1 - exp(-kappa*t_step) # Done here too, just so that the user can check
+if PhotonLifeTime == "Inf":
+    LossParam = 1
+else:
+    LossParam = 1 - t_step/PhotonLifeTime
+
 print("###############Recap:###############")
 print(f"- {topologyname} topology, {n_points}x{n_points} pixels")
 print(f"- Losses (1-eta): {1 - LossParam:.2f}, Beta: {beta}")

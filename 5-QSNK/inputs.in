@@ -1,4 +1,5 @@
-kappa = 0 #2.3e6 # s^-1: this is a sort of "Loss rate" that's used together with the time step T to calculate the loss probability = exp(-kT)
+PhotonLifeTime = 10e-6 #s, average photon lifetime inside the quantum memories. Should be always higher than time step.
+                       # Set to "Inf" for lossless simulation
 t_step = 5e-6; # Length of the time step, s
 time_steps = int(1e4); # Number of steps to simulate per pixel
 memo_len=int(time_steps/2) # How many configurations should be memoized - this refers to the memoization inside the pixels
