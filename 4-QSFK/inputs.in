@@ -21,7 +21,7 @@ SPair_1 = ("A","C") #Service pairs
 SPair_2 = ("B","D")
     
 DemRates1 = np.linspace(1,200000,n_points) # points along the first and second pair directions
-DemRates2 = np.linspace(1,1,n_points)
+DemRates2 = np.linspace(1,200000,n_points)
 
 ParallelRun = True    # Huge performance gain if True. This should be set to False only for debugging reasons (multiprocessing does not support breakpoints)
 
