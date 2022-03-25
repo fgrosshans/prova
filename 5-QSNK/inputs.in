@@ -9,8 +9,8 @@ ArrRates = {
             frozenset(('A','B')) : 200000,  # Physical pairs and their arrival rates, Hz
             frozenset(('C','B')) : 200000,
             frozenset(('D','C')) : 200000,
-            frozenset(('C','B')) : 200000,
-            frozenset(('D','C')) : 200000
+            frozenset(('E','B')) : 200000,
+            frozenset(('F','C')) : 200000
             }
 
 topologyname = "Double Y" # Just for the plot, type whatever you want here
