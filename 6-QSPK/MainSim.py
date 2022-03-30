@@ -120,7 +120,7 @@ def Sim(BatchInput,memoDict):
     Q_final = [q.Qdpairs for q in Q]
     Tot_dem_rate = sum(BatchInput.values())
     unserved = sum(D_final)/(t_step*time_steps*Tot_dem_rate) #Unserved demands at the end divided by an approximation of the total incoming demand
-    if unserved >= 0.2:
+    if unserved >= 0.17:
         to_store = tuple(zip(*BatchInput.items()))
         memoDict[to_store] = (unserved, Q_final, D_final) 
     return unserved, Q_final, D_final
