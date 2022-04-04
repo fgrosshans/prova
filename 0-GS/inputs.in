@@ -9,22 +9,22 @@ beta = 1      # Demand weight in the scheduling calculation
 ArrRates = {
             frozenset(('A','B')) : 200000,  # Physical pairs and their arrival rates, Hz
             frozenset(('C','B')) : 200000,
-            frozenset(('D','C')) : 200000,
-            frozenset(('E','B')) : 200000,
-            frozenset(('F','C')) : 200000
+            frozenset(('C','D')) : 200000,
+            frozenset(('E','D')) : 200000,
+            frozenset(('E','F')) : 200000
             }
 
-topologyname = "Double Y" # Just for the plot, type whatever you want here
+topologyname = "5LinkChain" # Just for the plot, type whatever you want here
 
-routes = ['ABCD','EBCF'] # Routes to serve the service pairs. Notice that this is separate from the SPair variables, so that several routes may be specified for a single pair.
+routes = ['ABCDE','BCDEF'] # Routes to serve the service pairs. Notice that this is separate from the SPair variables, so that several routes may be specified for a single pair.
 
 n_points = 65 # Number of pixels for the stability plot
 
-SPair_1 = ("A","D") #Service pairs
-SPair_2 = ("E","F")
+SPair_1 = ("A","E") #Service pairs
+SPair_2 = ("B","F")
     
-DemRates1 = np.linspace(1,200000,n_points) # points along the first and second pair directions
-DemRates2 = np.linspace(1,200000,n_points)
+DemRates1 = np.linspace(1,75000,n_points) # points along the first and second pair directions
+DemRates2 = np.linspace(1,75000,n_points)
 
 ParallelRun = True    # Huge performance gain if True. This should be set to False only for debugging reasons (multiprocessing does not support breakpoints)
 
